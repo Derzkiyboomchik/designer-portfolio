@@ -41,7 +41,7 @@ export const PROFILE_DATA: ProfileData = {
   name: "ELENA VANCE",
   role: "Principal Visual & Spatial Designer",
   location: "Zurich & Paris",
-  avatarUrl: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=600&q=80",
+  avatarUrl: "./projects/avatar.jpg",
   bio: "Elena Vance (b. 1994, Zurich) operates at the intersection of architectural minimalism, brand typography, and digital spatial environments. Former Senior Art Director at Studio Müller, her practice explores purity of form, structural rhythm, and tactile typography across print and interactive mediums.",
   manifesto: "Purity of form. Generous white space. Functional clarity without compromise.",
   stats: [
@@ -92,10 +92,10 @@ export const PORTFOLIO_PROJECTS: Project[] = [
     year: "2025",
     aspectRatio: "3/4",
     aspectRatioLabel: "3:4 Portrait",
-    imageUrl: "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=85",
+    imageUrl: "./projects/project-1.jpg",
     secondaryImages: [
-      "https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?auto=format&fit=crop&w=1200&q=85",
-      "https://images.unsplash.com/photo-1600607687939-ce8a6c25118c?auto=format&fit=crop&w=1200&q=85"
+      "./projects/project-1-a.jpg",
+      "./projects/project-1-b.jpg"
     ],
     description: "A 320-page hardcover publication investigating post-war Brutalist architectural landmarks across Basel and Zurich. Features custom grid system, blind debossed cloth cover, and high-density silver ink on uncoated cotton paper.",
     client: "Kunsthalle Zurich",
@@ -111,10 +111,9 @@ export const PORTFOLIO_PROJECTS: Project[] = [
     year: "2025",
     aspectRatio: "16/9",
     aspectRatioLabel: "16:9 Landscape",
-    imageUrl: "https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?auto=format&fit=crop&w=1400&q=85",
+    imageUrl: "./projects/project-2.jpg",
     secondaryImages: [
-      "https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?auto=format&fit=crop&w=1400&q=85",
-      "https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format&fit=crop&w=1400&q=85"
+      "./projects/project-2-a.jpg"
     ],
     description: "Spatial direction and tactile interior elements for Aesop's retail concept store in Geneva. Utilizing raw Swiss Valser quartz, bead-blasted stainless steel, and warm linear lighting to create a meditative sanctuary.",
     client: "Aesop Switzerland",
@@ -130,9 +129,9 @@ export const PORTFOLIO_PROJECTS: Project[] = [
     year: "2024",
     aspectRatio: "1/1",
     aspectRatioLabel: "1:1 Square",
-    imageUrl: "https://images.unsplash.com/photo-1541701494587-cb58502866ab?auto=format&fit=crop&w=1200&q=85",
+    imageUrl: "./projects/project-3.jpg",
     secondaryImages: [
-      "https://images.unsplash.com/photo-1550684848-fac1c5b4e853?auto=format&fit=crop&w=1200&q=85"
+      "./projects/project-3-a.jpg"
     ],
     description: "A geometric neo-grotesque variable font designed specifically for high-contrast Swiss poster layouts and high-density digital displays. Includes 18 weights and comprehensive extended Latin glyphs.",
     client: "Niggli Type Foundry",
@@ -147,9 +146,9 @@ export const PORTFOLIO_PROJECTS: Project[] = [
     year: "2024",
     aspectRatio: "2/5",
     aspectRatioLabel: "2:5 Tall Vertical",
-    imageUrl: "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=1000&q=85",
+    imageUrl: "./projects/project-4.jpg",
     secondaryImages: [
-      "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=1000&q=85"
+      "./projects/project-4-a.jpg"
     ],
     description: "Extensive architectural photography project capturing the stark geometric skyward perspectives in Zurich's financial core during peak noon sun.",
     client: "NZZ Folio Magazine",
@@ -164,9 +163,9 @@ export const PORTFOLIO_PROJECTS: Project[] = [
     year: "2024",
     aspectRatio: "21/9",
     aspectRatioLabel: "21:9 Wide Panoramic",
-    imageUrl: "https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format&fit=crop&w=1600&q=85",
+    imageUrl: "./projects/project-5.jpg",
     secondaryImages: [
-      "https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1400&q=85"
+      "./projects/project-5-a.jpg"
     ],
     description: "Temporary installation pavilion engineered for deep listening experiences. Seamless curved birch plywood sound reflectors disperse natural ambient echoes with zero electronic amplification.",
     client: "Vitra Design Museum",
@@ -182,9 +181,9 @@ export const PORTFOLIO_PROJECTS: Project[] = [
     year: "2024",
     aspectRatio: "9/16",
     aspectRatioLabel: "9:16 Portrait",
-    imageUrl: "https://images.unsplash.com/photo-1507676184212-d03ab07a01bf?auto=format&fit=crop&w=1000&q=85",
+    imageUrl: "./projects/project-6.jpg",
     secondaryImages: [
-      "https://images.unsplash.com/photo-1541701494587-cb58502866ab?auto=format&fit=crop&w=1000&q=85"
+      "./projects/project-6-a.jpg"
     ],
     description: "Screen printed dynamic posters created via custom real-time GLSL shader algorithms that translate solar elevation data into precise geometric shadow gradients.",
     client: "Art Basel",
@@ -199,9 +198,9 @@ export const PORTFOLIO_PROJECTS: Project[] = [
     year: "2023",
     aspectRatio: "4/3",
     aspectRatioLabel: "4:3 Landscape",
-    imageUrl: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=1200&q=85",
+    imageUrl: "./projects/project-7.jpg",
     secondaryImages: [
-      "https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?auto=format&fit=crop&w=1200&q=85"
+      "./projects/project-7-a.jpg"
     ],
     description: "Brand ecosystem, micro-engraving typography, tactile box packaging, and digital flagship portal for an avant-garde independent Swiss watchmaker.",
     client: "Chronos Workshop SA",
@@ -216,9 +215,9 @@ export const PORTFOLIO_PROJECTS: Project[] = [
     year: "2023",
     aspectRatio: "2/3",
     aspectRatioLabel: "2:3 Portrait",
-    imageUrl: "https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?auto=format&fit=crop&w=1000&q=85",
+    imageUrl: "./projects/project-8.jpg",
     secondaryImages: [
-      "https://images.unsplash.com/photo-1579783902614-a3fb3927b675?auto=format&fit=crop&w=1000&q=85"
+      "./projects/project-8-a.jpg"
     ],
     description: "Exhibition design system and accompanying catalog celebrating 100 years of Le Corbusier's architectural drawings. Printed on Swiss fedrigoni cotton papers.",
     client: "Le Corbusier Foundation",
@@ -233,9 +232,9 @@ export const PORTFOLIO_PROJECTS: Project[] = [
     year: "2023",
     aspectRatio: "1/3",
     aspectRatioLabel: "1:3 Ultra Tall",
-    imageUrl: "https://images.unsplash.com/photo-1513519245088-0e12902e5a38?auto=format&fit=crop&w=900&q=85",
+    imageUrl: "./projects/project-9.jpg",
     secondaryImages: [
-      "https://images.unsplash.com/photo-1513519245088-0e12902e5a38?auto=format&fit=crop&w=900&q=85"
+      "./projects/project-9-a.jpg"
     ],
     description: "Sound-absorbing vertical partitions crafted from recycled high-density Swiss felt and hidden magnetic structural connectors for open gallery spaces.",
     client: "USM Modular Furniture",
@@ -250,9 +249,9 @@ export const PORTFOLIO_PROJECTS: Project[] = [
     year: "2023",
     aspectRatio: "3/2",
     aspectRatioLabel: "3:2 Landscape",
-    imageUrl: "https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&w=1200&q=85",
+    imageUrl: "./projects/project-10.jpg",
     secondaryImages: [
-      "https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&w=1200&q=85"
+      "./projects/project-10-a.jpg"
     ],
     description: "Interactive canvas app and desktop player designed for spatial audio mixing. Uses pure black canvas, ultra-fine 1px vector lines, and fluid haptic feedback.",
     client: "Bang & Olufsen",
@@ -267,9 +266,9 @@ export const PORTFOLIO_PROJECTS: Project[] = [
     year: "2023",
     aspectRatio: "5/3",
     aspectRatioLabel: "5:3 Panoramic",
-    imageUrl: "https://images.unsplash.com/photo-1507499739999-097706ad8914?auto=format&fit=crop&w=1400&q=85",
+    imageUrl: "./projects/project-11.jpg",
     secondaryImages: [
-      "https://images.unsplash.com/photo-1507499739999-097706ad8914?auto=format&fit=crop&w=1400&q=85"
+      "./projects/project-11-a.jpg"
     ],
     description: "Suspended architectural illumination element engineered from 3-meter seamless extruded aluminum beams with touch-sensitive dimming zones.",
     client: "Belux Lighting",
@@ -284,9 +283,9 @@ export const PORTFOLIO_PROJECTS: Project[] = [
     year: "2022",
     aspectRatio: "3/4",
     aspectRatioLabel: "3:4 Portrait",
-    imageUrl: "https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=1200&q=85",
+    imageUrl: "./projects/project-12.jpg",
     secondaryImages: [
-      "https://images.unsplash.com/photo-1519681393784-d120267933ba?auto=format&fit=crop&w=1200&q=85"
+      "./projects/project-12-a.jpg"
     ],
     description: "Extreme environment observatory shell in the Engadin valley, built to withstand alpine winter conditions with minimal environmental footprint.",
     client: "Alpine Research Institute",
