@@ -1,153 +1,136 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Play, RotateCcw, ExternalLink, ArrowLeft, ArrowRight, ArrowUp, ArrowDown } from 'lucide-react';
+import { Play, RotateCcw, ExternalLink, ArrowUp, ArrowDown } from 'lucide-react';
 
-interface SubwayRunnerProps {
-  onOpenStudio?: () => void;
-}
-
-export const SubwayRunner: React.FC<SubwayRunnerProps> = () => {
+export const SubwayRunner: React.FC = () => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  
+
   const [gameState, setGameState] = useState<'START' | 'PLAYING' | 'GAMEOVER'>('START');
   const [score, setScore] = useState<number>(0);
   const [highScore, setHighScore] = useState<number>(() => {
-    return parseInt(localStorage.getItem('swiss_runner_highscore') || '0', 10);
+    return parseInt(localStorage.getItem('pixel_runner_highscore') || '0', 10);
   });
 
-  // Game internal mutable refs for 60fps loop
   const stateRef = useRef({
-    lane: 0, // -1 (Left), 0 (Center), 1 (Right)
-    targetX: 0,
-    currentX: 0,
-    posY: 0,
+    playerY: 0,
     velocityY: 0,
     isJumping: false,
-    isSliding: false,
-    slideTimer: 0,
+    isDucking: false,
+    duckTimer: 0,
     score: 0,
-    speed: 0.8,
+    speed: 5.0,
+    animFrame: 0,
+    animTimer: 0,
     obstacles: [] as Array<{
       id: number;
-      lane: number;
-      z: number; // Distance from player (1000 to 0)
-      type: 'BLOCK' | 'HURDLE' | 'BARRIER'; // BLOCK: dodge; HURDLE: jump; BARRIER: slide
-    }>,
-    particles: [] as Array<{
       x: number;
-      y: number;
-      z: number;
-      vx: number;
-      vy: number;
-      vz: number;
-      life: number;
+      width: number;
+      height: number;
+      type: 'CACTUS_SMALL' | 'CACTUS_TALL' | 'BIRD';
+      yOffset: number;
     }>,
-    nextObstacleDist: 200,
+    groundDots: [] as Array<{ x: number; y: number; size: number }>,
+    clouds: [] as Array<{ x: number; y: number; scale: number }>,
+    nextSpawnTimer: 60,
     status: 'START' as 'START' | 'PLAYING' | 'GAMEOVER',
   });
 
-  // Keep stateRef status updated
   useEffect(() => {
     stateRef.current.status = gameState;
   }, [gameState]);
 
-  // Touch Swipe Handling
-  const touchStartRef = useRef<{ x: number; y: number } | null>(null);
-
-  const handleKeyDown = (e: KeyboardEvent) => {
-    if (stateRef.current.status !== 'PLAYING') {
-      if (e.code === 'Space' || e.code === 'Enter') {
-        startGame();
-      }
-      return;
+  // Generate background static ground dots and clouds once
+  useEffect(() => {
+    const dots = [];
+    for (let i = 0; i < 40; i++) {
+      dots.push({
+        x: Math.random() * 800,
+        y: Math.random() * 12 + 2,
+        size: Math.random() > 0.6 ? 2 : 1,
+      });
     }
 
-    if (e.key === 'ArrowLeft' || e.key === 'a' || e.key === 'A') {
-      moveLane(-1);
-    } else if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'D') {
-      moveLane(1);
-    } else if (e.key === 'ArrowUp' || e.key === 'w' || e.key === 'W' || e.code === 'Space') {
-      e.preventDefault();
-      jump();
-    } else if (e.key === 'ArrowDown' || e.key === 's' || e.key === 'S') {
-      e.preventDefault();
-      slide();
+    const clouds = [];
+    for (let i = 0; i < 5; i++) {
+      clouds.push({
+        x: i * 180 + Math.random() * 80,
+        y: Math.random() * 60 + 30,
+        scale: 0.8 + Math.random() * 0.4,
+      });
     }
-  };
 
-  const moveLane = (dir: number) => {
-    const nextLane = Math.max(-1, Math.min(1, stateRef.current.lane + dir));
-    stateRef.current.lane = nextLane;
-    stateRef.current.targetX = nextLane * 180;
-  };
+    stateRef.current.groundDots = dots;
+    stateRef.current.clouds = clouds;
+  }, []);
 
   const jump = () => {
     if (!stateRef.current.isJumping) {
       stateRef.current.isJumping = true;
-      stateRef.current.velocityY = 18;
-      stateRef.current.isSliding = false;
+      stateRef.current.velocityY = -12.5;
+      stateRef.current.isDucking = false;
     }
   };
 
-  const slide = () => {
-    if (!stateRef.current.isSliding) {
-      stateRef.current.isSliding = true;
-      stateRef.current.slideTimer = 35;
-      if (stateRef.current.isJumping) {
-        stateRef.current.velocityY = -20; // Fast drop
-      }
+  const duck = () => {
+    if (stateRef.current.isJumping) {
+      // Fast drop if in air
+      stateRef.current.velocityY = 14;
+    } else {
+      stateRef.current.isDucking = true;
+      stateRef.current.duckTimer = 30;
     }
   };
 
   const startGame = () => {
-    stateRef.current = {
-      lane: 0,
-      targetX: 0,
-      currentX: 0,
-      posY: 0,
-      velocityY: 0,
-      isJumping: false,
-      isSliding: false,
-      slideTimer: 0,
-      score: 0,
-      speed: 1.0,
-      obstacles: [],
-      particles: [],
-      nextObstacleDist: 150,
-      status: 'PLAYING',
-    };
+    stateRef.current.playerY = 0;
+    stateRef.current.velocityY = 0;
+    stateRef.current.isJumping = false;
+    stateRef.current.isDucking = false;
+    stateRef.current.duckTimer = 0;
+    stateRef.current.score = 0;
+    stateRef.current.speed = 5.2;
+    stateRef.current.obstacles = [];
+    stateRef.current.nextSpawnTimer = 40;
+    stateRef.current.status = 'PLAYING';
+
     setGameState('PLAYING');
     setScore(0);
   };
 
-  // Touch handlers
-  const handleTouchStart = (e: React.TouchEvent) => {
-    const touch = e.touches[0];
-    touchStartRef.current = { x: touch.clientX, y: touch.clientY };
-  };
-
-  const handleTouchEnd = (e: React.TouchEvent) => {
-    if (!touchStartRef.current) return;
-    const touch = e.changedTouches[0];
-    const dx = touch.clientX - touchStartRef.current.x;
-    const dy = touch.clientY - touchStartRef.current.y;
-
-    if (Math.abs(dx) > Math.abs(dy)) {
-      if (dx > 30) moveLane(1);
-      else if (dx < -30) moveLane(-1);
-    } else {
-      if (dy < -30) jump();
-      else if (dy > 30) slide();
-    }
-    touchStartRef.current = null;
-  };
-
-  // Keyboard Event Registration
+  // Keyboard Event Handlers
   useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (stateRef.current.status !== 'PLAYING') {
+        if (e.code === 'Space' || e.code === 'Enter' || e.key === 'ArrowUp' || e.key === 'w' || e.key === 'W') {
+          e.preventDefault();
+          startGame();
+        }
+        return;
+      }
+
+      if (e.key === 'ArrowUp' || e.key === 'w' || e.key === 'W' || e.code === 'Space') {
+        e.preventDefault();
+        jump();
+      } else if (e.key === 'ArrowDown' || e.key === 's' || e.key === 'S') {
+        e.preventDefault();
+        duck();
+      }
+    };
+
+    const handleKeyUp = (e: KeyboardEvent) => {
+      if (e.key === 'ArrowDown' || e.key === 's' || e.key === 'S') {
+        stateRef.current.isDucking = false;
+      }
+    };
+
     window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
+    window.addEventListener('keyup', handleKeyUp);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener('keyup', handleKeyUp);
+    };
   }, []);
 
-  // Main 60fps Canvas Loop
+  // Main 60fps Pixel-Art Canvas Loop
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -158,352 +141,328 @@ export const SubwayRunner: React.FC<SubwayRunnerProps> = () => {
 
     const render = () => {
       const isDark = document.documentElement.classList.contains('dark');
-      const width = canvas.width = canvas.parentElement?.clientWidth || 800;
-      const height = canvas.height = 480;
+      const width = (canvas.width = canvas.parentElement?.clientWidth || 800);
+      const height = (canvas.height = 360);
 
-      const primaryColor = isDark ? '#FFFFFF' : '#111111';
+      // Pixel Art Crisp Settings
+      ctx.imageSmoothingEnabled = false;
+
+      const primaryColor = isDark ? '#FFFFFF' : '#000000';
       const bgColor = isDark ? '#0E0E10' : '#FAFAFA';
-      const gridColor = isDark ? 'rgba(255, 255, 255, 0.15)' : 'rgba(0, 0, 0, 0.12)';
-      const obstacleColor = isDark ? '#FFFFFF' : '#111111';
 
-      // Clear Screen
+      // Clear Canvas
       ctx.fillStyle = bgColor;
       ctx.fillRect(0, 0, width, height);
 
       const state = stateRef.current;
+      const groundY = height - 60;
 
-      // Horizon Line
-      const horizonY = height * 0.35;
-      const cx = width / 2;
-
-      // Draw Perspective Grid Lanes (-1, 0, 1)
-      ctx.strokeStyle = gridColor;
-      ctx.lineWidth = 1.5;
-
-      const laneSpacings = [-260, -80, 80, 260];
-      laneSpacings.forEach((offset) => {
-        ctx.beginPath();
-        ctx.moveTo(cx + offset * 0.15, horizonY);
-        ctx.lineTo(cx + offset * 1.5, height);
-        ctx.stroke();
-      });
-
-      // Horizon bar
-      ctx.beginPath();
-      ctx.moveTo(0, horizonY);
-      ctx.lineTo(width, horizonY);
-      ctx.stroke();
-
+      // Update Game Loop if PLAYING
       if (state.status === 'PLAYING') {
-        // Update Game Loop
-        state.score += state.speed * 0.2;
-        state.speed += 0.0003;
+        state.score += 0.15;
+        state.speed = Math.min(10.5, 5.2 + state.score * 0.0035);
         setScore(Math.floor(state.score));
 
-        // Smooth X interpolation
-        state.currentX += (state.targetX - state.currentX) * 0.22;
+        // Animation Frame Counter
+        state.animTimer += 1;
+        if (state.animTimer >= 6) {
+          state.animFrame = (state.animFrame + 1) % 4;
+          state.animTimer = 0;
+        }
 
-        // Jump Physics
+        // Player Jump Physics
         if (state.isJumping) {
-          state.posY += state.velocityY;
-          state.velocityY -= 1.1; // Gravity
-          if (state.posY <= 0) {
-            state.posY = 0;
+          state.playerY += state.velocityY;
+          state.velocityY += 0.65; // Gravity
+          if (state.playerY >= 0) {
+            state.playerY = 0;
             state.isJumping = false;
           }
         }
 
-        // Slide Timer
-        if (state.isSliding) {
-          state.slideTimer -= 1;
-          if (state.slideTimer <= 0) {
-            state.isSliding = false;
+        // Duck Timer
+        if (state.isDucking && !state.isJumping) {
+          state.duckTimer -= 1;
+          if (state.duckTimer <= 0) {
+            state.isDucking = false;
           }
         }
 
+        // Move Background Clouds
+        state.clouds.forEach((cloud) => {
+          cloud.x -= state.speed * 0.2;
+          if (cloud.x < -80) cloud.x = width + 50;
+        });
+
+        // Move Ground Dots
+        state.groundDots.forEach((dot) => {
+          dot.x -= state.speed;
+          if (dot.x < 0) dot.x = width;
+        });
+
         // Spawn Obstacles
-        state.nextObstacleDist -= state.speed * 8;
-        if (state.nextObstacleDist <= 0) {
-          const lanes = [-1, 0, 1];
-          const chosenLane = lanes[Math.floor(Math.random() * lanes.length)];
-          const types: Array<'BLOCK' | 'HURDLE' | 'BARRIER'> = ['BLOCK', 'HURDLE', 'BARRIER'];
+        state.nextSpawnTimer -= 1;
+        if (state.nextSpawnTimer <= 0) {
+          const types: Array<'CACTUS_SMALL' | 'CACTUS_TALL' | 'BIRD'> = ['CACTUS_SMALL', 'CACTUS_TALL', 'BIRD'];
           const chosenType = types[Math.floor(Math.random() * types.length)];
+
+          let obsWidth = 24;
+          let obsHeight = 44;
+          let yOffset = 0;
+
+          if (chosenType === 'CACTUS_SMALL') {
+            obsWidth = 20;
+            obsHeight = 36;
+          } else if (chosenType === 'CACTUS_TALL') {
+            obsWidth = 32;
+            obsHeight = 54;
+          } else if (chosenType === 'BIRD') {
+            obsWidth = 36;
+            obsHeight = 26;
+            yOffset = Math.random() > 0.5 ? 42 : 18; // Flying high or low
+          }
 
           state.obstacles.push({
             id: Date.now() + Math.random(),
-            lane: chosenLane,
-            z: 1000,
+            x: width + 20,
+            width: obsWidth,
+            height: obsHeight,
             type: chosenType,
+            yOffset,
           });
 
-          state.nextObstacleDist = Math.max(120, 280 - state.speed * 15);
+          // Minimum gap between obstacles for fair balanced gameplay
+          state.nextSpawnTimer = Math.floor(Math.random() * 45 + 50 - state.speed * 1.5);
         }
 
-        // Update Obstacles
+        // Update & Check Obstacles
+        const playerX = 80;
+        const playerWidth = state.isDucking ? 46 : 30;
+        const playerHeight = state.isDucking ? 22 : 46;
+        const playerTopY = groundY - playerHeight + state.playerY;
+
         for (let i = state.obstacles.length - 1; i >= 0; i--) {
           const obs = state.obstacles[i];
-          obs.z -= state.speed * 14;
+          obs.x -= state.speed;
 
-          // Check Collision when close to player (z between 20 and 120)
-          if (obs.z > 20 && obs.z < 120) {
-            const laneDiff = Math.abs(state.currentX - obs.lane * 180);
-            if (laneDiff < 100) {
-              let hit = false;
-              if (obs.type === 'BLOCK') {
-                hit = true; // Cannot dodge by jumping/sliding
-              } else if (obs.type === 'HURDLE') {
-                if (state.posY < 40) hit = true; // Must jump
-              } else if (obs.type === 'BARRIER') {
-                if (!state.isSliding && state.posY < 60) hit = true; // Must slide
-              }
+          const obsLeft = obs.x;
+          const obsRight = obs.x + obs.width;
+          const obsTop = groundY - obs.height - obs.yOffset;
+          const obsBottom = groundY - obs.yOffset;
 
-              if (hit) {
-                state.status = 'GAMEOVER';
-                setGameState('GAMEOVER');
-                const finalScore = Math.floor(state.score);
-                if (finalScore > highScore) {
-                  setHighScore(finalScore);
-                  localStorage.setItem('swiss_runner_highscore', finalScore.toString());
-                }
-              }
+          // Precise Pixel Box Collision Check
+          const margin = 5; // Generous hitbox for player-friendly balance
+          if (
+            playerX + playerWidth - margin > obsLeft &&
+            playerX + margin < obsRight &&
+            playerTopY + playerHeight - margin > obsTop &&
+            playerTopY + margin < obsBottom
+          ) {
+            // Collision Triggered!
+            state.status = 'GAMEOVER';
+            setGameState('GAMEOVER');
+            const finalScore = Math.floor(state.score);
+            if (finalScore > highScore) {
+              setHighScore(finalScore);
+              localStorage.setItem('pixel_runner_highscore', finalScore.toString());
             }
           }
 
-          // Remove passed obstacles
-          if (obs.z <= 0) {
+          if (obs.x < -60) {
             state.obstacles.splice(i, 1);
           }
         }
       }
 
-      // Draw Moving Road Lines
-      const roadLineOffset = (Date.now() * 0.3 * (state.status === 'PLAYING' ? state.speed : 0.3)) % 40;
-      ctx.strokeStyle = gridColor;
-      for (let z = 0; z < 1000; z += 40) {
-        const lineZ = (z - roadLineOffset + 1000) % 1000;
-        const scale = 1 - lineZ / 1000;
-        const y = horizonY + (height - horizonY) * scale;
-        ctx.beginPath();
-        ctx.moveTo(cx - 400 * scale, y);
-        ctx.lineTo(cx + 400 * scale, y);
-        ctx.stroke();
-      }
+      // --- RENDER PIXEL GRAPHICS ---
 
-      // Draw Obstacles with Perspective
-      state.obstacles.sort((a, b) => b.z - a.z); // Render far to near
+      // 1. Draw Clouds
+      ctx.fillStyle = primaryColor;
+      state.clouds.forEach((cloud) => {
+        const cx = cloud.x;
+        const cy = cloud.y;
+        ctx.globalAlpha = 0.25;
+        // Pixel Cloud shape
+        ctx.fillRect(cx, cy, 36, 10);
+        ctx.fillRect(cx + 6, cy - 6, 24, 6);
+        ctx.globalAlpha = 1.0;
+      });
+
+      // 2. Draw Ground Line
+      ctx.fillStyle = primaryColor;
+      ctx.fillRect(0, groundY, width, 2);
+
+      // 3. Draw Ground Dots (Pixel texture)
+      state.groundDots.forEach((dot) => {
+        ctx.fillRect(dot.x, groundY + dot.y, dot.size, dot.size);
+      });
+
+      // 4. Draw Obstacles (Pixel Cacti & Birds)
       state.obstacles.forEach((obs) => {
-        const scale = 1 - obs.z / 1000;
-        if (scale <= 0) return;
+        const ox = Math.floor(obs.x);
+        const oy = Math.floor(groundY - obs.height - obs.yOffset);
 
-        const obsX = cx + (obs.lane * 180) * scale;
-        const obsY = horizonY + (height - horizonY) * scale;
+        if (obs.type === 'CACTUS_SMALL' || obs.type === 'CACTUS_TALL') {
+          // Pixel Cactus / Pillar
+          ctx.fillRect(ox + obs.width * 0.35, oy, obs.width * 0.3, obs.height);
+          // Left Arm
+          ctx.fillRect(ox, oy + obs.height * 0.3, obs.width * 0.45, 6);
+          ctx.fillRect(ox, oy + obs.height * 0.15, 6, obs.height * 0.2);
+          // Right Arm
+          ctx.fillRect(ox + obs.width * 0.55, oy + obs.height * 0.4, obs.width * 0.45, 6);
+          ctx.fillRect(ox + obs.width - 6, oy + obs.height * 0.25, 6, obs.height * 0.2);
+        } else if (obs.type === 'BIRD') {
+          // Pixel Bird / Flying Drone
+          const wingUp = state.animFrame % 2 === 0;
+          ctx.fillRect(ox, oy + 8, obs.width, 10);
+          ctx.fillRect(ox + 8, oy + 4, 16, 4);
+          // Head / Eye
+          ctx.fillRect(ox, oy + 4, 8, 6);
 
-        const baseWidth = 140 * scale;
-        const baseHeight = 160 * scale;
-
-        ctx.lineWidth = Math.max(1, 2 * scale);
-        ctx.strokeStyle = obstacleColor;
-        ctx.fillStyle = isDark ? 'rgba(255, 255, 255, 0.08)' : 'rgba(0, 0, 0, 0.05)';
-
-        if (obs.type === 'BLOCK') {
-          // Full Monolithic Block
-          const w = baseWidth;
-          const h = baseHeight;
-          ctx.fillRect(obsX - w / 2, obsY - h, w, h);
-          ctx.strokeRect(obsX - w / 2, obsY - h, w, h);
-
-          // Top label indicator
-          ctx.fillStyle = obstacleColor;
-          ctx.font = `${Math.max(9, 11 * scale)}px Space Grotesk`;
-          ctx.textAlign = 'center';
-          ctx.fillText('MONOLITH', obsX, obsY - h + 15 * scale);
-        } else if (obs.type === 'HURDLE') {
-          // Low Hurdle (Must Jump over)
-          const w = baseWidth * 1.1;
-          const h = baseHeight * 0.35;
-          ctx.fillRect(obsX - w / 2, obsY - h, w, h);
-          ctx.strokeRect(obsX - w / 2, obsY - h, w, h);
-
-          // Diagonal stripes
-          ctx.beginPath();
-          ctx.moveTo(obsX - w / 2, obsY - h);
-          ctx.lineTo(obsX + w / 2, obsY);
-          ctx.stroke();
-
-          ctx.fillStyle = obstacleColor;
-          ctx.font = `${Math.max(8, 10 * scale)}px Space Grotesk`;
-          ctx.textAlign = 'center';
-          ctx.fillText('▲ JUMP ▲', obsX, obsY - h - 5);
-        } else if (obs.type === 'BARRIER') {
-          // Overhead Barrier (Must Slide under)
-          const w = baseWidth * 1.2;
-          const h = baseHeight * 0.45;
-          const topY = obsY - baseHeight * 1.2;
-          ctx.fillRect(obsX - w / 2, topY, w, h);
-          ctx.strokeRect(obsX - w / 2, topY, w, h);
-
-          // Support legs
-          ctx.beginPath();
-          ctx.moveTo(obsX - w / 2 + 5, topY + h);
-          ctx.lineTo(obsX - w / 2 + 5, obsY);
-          ctx.moveTo(obsX + w / 2 - 5, topY + h);
-          ctx.lineTo(obsX + w / 2 - 5, obsY);
-          ctx.stroke();
-
-          ctx.fillStyle = obstacleColor;
-          ctx.font = `${Math.max(8, 10 * scale)}px Space Grotesk`;
-          ctx.textAlign = 'center';
-          ctx.fillText('▼ SLIDE ▼', obsX, topY + h / 2 + 3);
+          // Wings
+          if (wingUp) {
+            ctx.fillRect(ox + 12, oy - 8, 8, 14);
+          } else {
+            ctx.fillRect(ox + 12, oy + 12, 8, 12);
+          }
         }
       });
 
-      // Draw Player (Runner Cube / Person silhouette)
-      const playerZScale = 0.95;
-      const playerX = cx + state.currentX * playerZScale;
-      const playerY = horizonY + (height - horizonY) * playerZScale - state.posY;
+      // 5. Draw Pixel Runner Character (Google Dino / Swiss Pixel Style)
+      const px = 80;
+      const py = Math.floor(groundY + state.playerY);
 
-      ctx.save();
-      ctx.translate(playerX, playerY);
-
-      const pWidth = state.isSliding ? 50 : 38;
-      const pHeight = state.isSliding ? 22 : 54;
-
-      // Shadow on floor
-      ctx.fillStyle = isDark ? 'rgba(255, 255, 255, 0.2)' : 'rgba(0, 0, 0, 0.2)';
-      ctx.beginPath();
-      ctx.ellipse(0, state.posY, pWidth * 0.7, 8, 0, 0, Math.PI * 2);
-      ctx.fill();
-
-      // Main Player Body
       ctx.fillStyle = primaryColor;
-      ctx.strokeStyle = primaryColor;
-      ctx.lineWidth = 2;
 
-      // Draw Player Box/Icon
-      ctx.fillRect(-pWidth / 2, -pHeight, pWidth, pHeight);
-      ctx.strokeRect(-pWidth / 2, -pHeight, pWidth, pHeight);
+      if (state.isDucking && !state.isJumping) {
+        // Ducking Pixel Silhouette
+        ctx.fillRect(px, py - 22, 46, 18);
+        ctx.fillRect(px + 30, py - 26, 16, 10); // Head forward
+        // Running legs when ducking
+        if (state.animFrame % 2 === 0) {
+          ctx.fillRect(px + 6, py - 4, 8, 4);
+          ctx.fillRect(px + 28, py - 4, 8, 4);
+        } else {
+          ctx.fillRect(px + 14, py - 4, 8, 4);
+          ctx.fillRect(px + 36, py - 4, 8, 4);
+        }
+      } else if (state.isJumping) {
+        // Jumping Pixel Silhouette (Legs together)
+        ctx.fillRect(px + 6, py - 46, 22, 28);
+        ctx.fillRect(px + 12, py - 54, 14, 10); // Head
+        ctx.fillRect(px + 8, py - 18, 6, 14); // Left Leg
+        ctx.fillRect(px + 18, py - 18, 6, 14); // Right Leg
+      } else {
+        // Standard Running Pixel Silhouette
+        ctx.fillRect(px + 6, py - 46, 22, 28); // Torso
+        ctx.fillRect(px + 12, py - 54, 14, 10); // Head
+        ctx.fillRect(px + 2, py - 40, 8, 14); // Arm
 
-      // Inner Swiss minimalism cross detail
-      ctx.strokeStyle = isDark ? '#0E0E10' : '#FAFAFA';
-      ctx.lineWidth = 1.5;
-      ctx.beginPath();
-      ctx.moveTo(0, -pHeight + 10);
-      ctx.lineTo(0, -10);
-      ctx.moveTo(-10, -pHeight / 2);
-      ctx.lineTo(10, -pHeight / 2);
-      ctx.stroke();
+        // Animated Running Legs (4-frame cycle)
+        if (state.animFrame === 0) {
+          ctx.fillRect(px + 6, py - 18, 6, 18);
+          ctx.fillRect(px + 18, py - 18, 6, 10);
+          ctx.fillRect(px + 24, py - 10, 8, 4);
+        } else if (state.animFrame === 1) {
+          ctx.fillRect(px + 8, py - 18, 6, 14);
+          ctx.fillRect(px + 18, py - 18, 6, 18);
+        } else if (state.animFrame === 2) {
+          ctx.fillRect(px + 4, py - 10, 8, 4);
+          ctx.fillRect(px + 10, py - 18, 6, 10);
+          ctx.fillRect(px + 18, py - 18, 6, 18);
+        } else {
+          ctx.fillRect(px + 6, py - 18, 6, 18);
+          ctx.fillRect(px + 16, py - 18, 6, 14);
+        }
+      }
 
-      ctx.restore();
+      // 6. Draw 8-Bit Score Counter in top right
+      ctx.fillStyle = primaryColor;
+      ctx.font = '14px monospace';
+      ctx.textAlign = 'right';
+      const paddedScore = String(Math.floor(state.score)).padStart(5, '0');
+      const paddedHigh = String(highScore).padStart(5, '0');
+      ctx.fillText(`HI ${paddedHigh}  ${paddedScore}`, width - 20, 32);
 
       animId = requestAnimationFrame(render);
     };
 
     animId = requestAnimationFrame(render);
     return () => cancelAnimationFrame(animId);
-  }, []);
+  }, [highScore]);
 
   return (
-    <section className="w-full max-w-5xl mx-auto px-4 py-8 select-none">
-      <div className="border border-[#111111]/15 dark:border-white/20 rounded-xl overflow-hidden bg-[#FAFAFA] dark:bg-[#0E0E10] shadow-2xl relative">
+    <section className="w-full max-w-4xl mx-auto px-4 py-8 select-none">
+      <div className="border border-[#111111]/20 dark:border-white/30 rounded-xl overflow-hidden bg-[#FAFAFA] dark:bg-[#0E0E10] shadow-2xl relative">
         
-        {/* Top Info Banner */}
-        <div className="p-4 border-b border-[#E5E5E5] dark:border-[#222225] flex flex-wrap items-center justify-between gap-4 bg-[#F0F0F0] dark:bg-[#141416]">
-          <div className="flex items-center gap-3">
-            <span className="w-2.5 h-2.5 rounded-full bg-amber-500 animate-ping"></span>
-            <div>
-              <h3 className="font-mono text-xs font-semibold tracking-widest uppercase text-[#111] dark:text-white">
-                SANITY DATABASE EMPTY • MONOCHROME SUBWAY RUNNER
-              </h3>
-              <p className="font-sans text-[11px] text-[#666] dark:text-[#999]">
-                No projects published in Sanity Studio yet. Enjoy this 3-lane runner while waiting!
-              </p>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-6 font-mono text-xs">
-            <div>
-              <span className="text-[#888] text-[10px] uppercase block">HIGH SCORE</span>
-              <span className="font-serif text-lg text-[#111] dark:text-white">{highScore}m</span>
-            </div>
-            <div>
-              <span className="text-[#888] text-[10px] uppercase block">SCORE</span>
-              <span className="font-serif text-lg text-[#111] dark:text-white">{score}m</span>
-            </div>
-          </div>
-        </div>
-
         {/* Game Canvas Container */}
-        <div 
-          className="relative w-full h-[460px] bg-[#FAFAFA] dark:bg-[#0E0E10] overflow-hidden cursor-pointer"
-          onTouchStart={handleTouchStart}
-          onTouchEnd={handleTouchEnd}
-        >
+        <div className="relative w-full h-[360px] bg-[#FAFAFA] dark:bg-[#0E0E10] overflow-hidden">
           <canvas ref={canvasRef} className="w-full h-full block" />
 
           {/* Start Screen Overlay */}
           {gameState === 'START' && (
-            <div className="absolute inset-0 bg-black/40 dark:bg-black/60 backdrop-blur-sm flex flex-col items-center justify-center p-6 text-center space-y-6 text-white z-20">
-              <span className="text-xs font-mono tracking-widest uppercase px-3 py-1 bg-white/20 backdrop-blur-md rounded-full border border-white/20">
-                SWISS MONOCHROME EDITION
+            <div className="absolute inset-0 bg-black/50 dark:bg-black/70 backdrop-blur-sm flex flex-col items-center justify-center p-6 text-center space-y-5 text-white z-20">
+              <span className="text-[10px] font-mono tracking-widest uppercase px-3 py-1 bg-white/20 backdrop-blur-md rounded-full border border-white/20">
+                8-BIT MONOCHROME EDITION
               </span>
 
-              <h2 className="font-serif text-4xl sm:text-5xl font-light tracking-tight">
-                SUBWAY RUNNER
+              <h2 className="font-mono text-3xl sm:text-4xl font-bold tracking-tight">
+                VOID RUNNER
               </h2>
 
-              <p className="font-sans text-xs text-white/80 max-w-md leading-relaxed font-light">
-                Use <strong className="text-white font-mono">← → / A D</strong> to switch lanes, <strong className="text-white font-mono">↑ / W / SPACE</strong> to Jump, and <strong className="text-white font-mono">↓ / S</strong> to Slide.
+              <p className="font-mono text-xs text-white/80 max-w-sm leading-relaxed">
+                Press <strong className="text-white">SPACE / ↑ / W</strong> to Jump, and <strong className="text-white">↓ / S</strong> to Duck under birds.
               </p>
 
               <button
                 onClick={startGame}
-                className="px-8 py-3.5 bg-white text-[#111] font-mono text-xs font-medium tracking-widest uppercase rounded-full hover:scale-105 active:scale-95 transition-all shadow-xl flex items-center gap-2"
+                className="px-7 py-3 bg-white text-[#111] font-mono text-xs font-bold tracking-widest uppercase rounded-full hover:scale-105 active:scale-95 transition-all shadow-xl flex items-center gap-2"
               >
                 <Play className="w-4 h-4 fill-current" />
-                START RUN
+                START GAME
               </button>
             </div>
           )}
 
           {/* Game Over Screen Overlay */}
           {gameState === 'GAMEOVER' && (
-            <div className="absolute inset-0 bg-black/75 backdrop-blur-md flex flex-col items-center justify-center p-6 text-center space-y-6 text-white z-20">
+            <div className="absolute inset-0 bg-black/80 backdrop-blur-md flex flex-col items-center justify-center p-6 text-center space-y-5 text-white z-20">
               <span className="text-xs font-mono tracking-widest uppercase text-red-400">
-                COLLISION DETECTED
+                GAME OVER
               </span>
 
-              <h2 className="font-serif text-4xl font-light tracking-tight">
-                GAME OVER
+              <h2 className="font-mono text-3xl sm:text-4xl font-bold tracking-tight">
+                VOID RUNNER
               </h2>
 
-              <div className="flex items-center gap-8 py-2 border-y border-white/20">
+              <div className="flex items-center gap-6 py-2 border-y border-white/20 font-mono text-xs">
                 <div>
-                  <span className="text-[10px] font-mono text-white/60 block">DISTANCE</span>
-                  <span className="font-serif text-3xl">{score}m</span>
+                  <span className="text-[10px] text-white/60 block">SCORE</span>
+                  <span className="text-xl font-bold">{score}m</span>
                 </div>
-                <div className="w-px h-8 bg-white/20"></div>
+                <div className="w-px h-6 bg-white/20"></div>
                 <div>
-                  <span className="text-[10px] font-mono text-white/60 block">BEST RUN</span>
-                  <span className="font-serif text-3xl">{highScore}m</span>
+                  <span className="text-[10px] text-white/60 block">BEST</span>
+                  <span className="text-xl font-bold">{highScore}m</span>
                 </div>
               </div>
 
               <div className="flex flex-wrap items-center justify-center gap-3">
                 <button
                   onClick={startGame}
-                  className="px-6 py-3 bg-white text-[#111] font-mono text-xs font-medium tracking-widest uppercase rounded-full hover:scale-105 transition-all flex items-center gap-2"
+                  className="px-6 py-2.5 bg-white text-[#111] font-mono text-xs font-bold tracking-widest uppercase rounded-full hover:scale-105 transition-all flex items-center gap-2"
                 >
                   <RotateCcw className="w-4 h-4" />
-                  TRY AGAIN (SPACE)
+                  RESTART (SPACE)
                 </button>
 
                 <a
                   href="https://designer-portfolio-fko873di.sanity.studio"
                   target="_blank"
                   rel="noreferrer"
-                  className="px-6 py-3 bg-white/10 hover:bg-white/20 border border-white/20 text-white font-mono text-xs tracking-widest uppercase rounded-full transition-all flex items-center gap-2"
+                  className="px-5 py-2.5 bg-white/10 hover:bg-white/20 border border-white/20 text-white font-mono text-xs tracking-widest uppercase rounded-full transition-all flex items-center gap-2"
                 >
-                  OPEN SANITY STUDIO
+                  SANITY STUDIO
                   <ExternalLink className="w-3.5 h-3.5" />
                 </a>
               </div>
@@ -512,40 +471,23 @@ export const SubwayRunner: React.FC<SubwayRunnerProps> = () => {
         </div>
 
         {/* Mobile / On-screen Control Buttons */}
-        <div className="p-4 border-t border-[#E5E5E5] dark:border-[#222225] bg-[#F0F0F0] dark:bg-[#141416] flex items-center justify-between gap-4">
-          <div className="text-xs font-mono text-[#777] dark:text-[#888] hidden sm:block">
-            CONTROLS: ← LEFT | → RIGHT | ↑ JUMP | ↓ SLIDE
+        <div className="p-3 border-t border-[#E5E5E5] dark:border-[#222225] bg-[#F0F0F0] dark:bg-[#141416] flex items-center justify-between gap-4">
+          <div className="text-[11px] font-mono text-[#777] dark:text-[#888] hidden sm:block">
+            CONTROLS: [SPACE / ↑ / W] JUMP  |  [↓ / S] DUCK
           </div>
 
-          {/* On-screen D-Pad for Touch/Click */}
           <div className="flex items-center gap-2 mx-auto sm:mr-0">
             <button
-              onClick={() => moveLane(-1)}
-              className="p-3 bg-white dark:bg-[#222226] border border-[#DDD] dark:border-[#333] rounded-lg active:scale-95 text-[#111] dark:text-white"
-              aria-label="Move Left"
-            >
-              <ArrowLeft className="w-4 h-4" />
-            </button>
-            <button
               onClick={jump}
-              className="p-3 bg-white dark:bg-[#222226] border border-[#DDD] dark:border-[#333] rounded-lg active:scale-95 text-[#111] dark:text-white"
-              aria-label="Jump"
+              className="px-4 py-2 bg-white dark:bg-[#222226] border border-[#DDD] dark:border-[#333] rounded-lg active:scale-95 font-mono text-xs font-semibold text-[#111] dark:text-white flex items-center gap-1.5"
             >
-              <ArrowUp className="w-4 h-4" />
+              <ArrowUp className="w-4 h-4" /> JUMP
             </button>
             <button
-              onClick={slide}
-              className="p-3 bg-white dark:bg-[#222226] border border-[#DDD] dark:border-[#333] rounded-lg active:scale-95 text-[#111] dark:text-white"
-              aria-label="Slide"
+              onClick={duck}
+              className="px-4 py-2 bg-white dark:bg-[#222226] border border-[#DDD] dark:border-[#333] rounded-lg active:scale-95 font-mono text-xs font-semibold text-[#111] dark:text-white flex items-center gap-1.5"
             >
-              <ArrowDown className="w-4 h-4" />
-            </button>
-            <button
-              onClick={() => moveLane(1)}
-              className="p-3 bg-white dark:bg-[#222226] border border-[#DDD] dark:border-[#333] rounded-lg active:scale-95 text-[#111] dark:text-white"
-              aria-label="Move Right"
-            >
-              <ArrowRight className="w-4 h-4" />
+              <ArrowDown className="w-4 h-4" /> DUCK
             </button>
           </div>
         </div>
