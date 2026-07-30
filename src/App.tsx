@@ -6,6 +6,7 @@ import { LightboxModal } from './components/LightboxModal';
 import { ThemeToggle } from './components/ThemeToggle';
 import { Footer } from './components/Footer';
 import { PORTFOLIO_PROJECTS, type Project } from './data/portfolioData';
+import { fetchPortfolioProjects } from './sanity/sanityService';
 
 export function App() {
   // Theme state defaulting to Dark Mode for high contrast aesthetic
@@ -17,6 +18,8 @@ export function App() {
     return true;
   });
 
+  const [projects, setProjects] = useState<Project[]>(PORTFOLIO_PROJECTS);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isDrawerOpen, setIsDrawerOpen] = useState<boolean>(false);
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
 
@@ -36,6 +39,27 @@ export function App() {
     }
   }, [darkMode]);
 
+  // Fetch portfolio projects from Sanity Public API or fallback to local
+  useEffect(() => {
+    let isMounted = true;
+    
+    fetchPortfolioProjects()
+      .then((data) => {
+        if (isMounted) {
+          setProjects(data);
+          setIsLoading(false);
+        }
+      })
+      .catch((err) => {
+        console.error('Failed to load portfolio projects:', err);
+        if (isMounted) setIsLoading(false);
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
   const toggleTheme = () => {
     setDarkMode(prev => !prev);
   };
@@ -50,10 +74,19 @@ export function App() {
 
       {/* Main Content Masonry Grid */}
       <main className="flex-1">
-        <MasonryGrid
-          projects={PORTFOLIO_PROJECTS}
-          onSelectProject={(project) => setSelectedProject(project)}
-        />
+        {isLoading ? (
+          <div className="py-24 text-center space-y-3">
+            <div className="w-6 h-6 border-2 border-current border-t-transparent rounded-full animate-spin mx-auto opacity-40"></div>
+            <p className="font-mono text-xs text-[#888] uppercase tracking-widest">
+              LOADING SANITY API DATA...
+            </p>
+          </div>
+        ) : (
+          <MasonryGrid
+            projects={projects}
+            onSelectProject={(project) => setSelectedProject(project)}
+          />
+        )}
       </main>
 
       {/* Footer with Live Clock */}
@@ -68,7 +101,7 @@ export function App() {
       {/* Lightbox Modal for Grid Item Details */}
       <LightboxModal
         project={selectedProject}
-        allProjects={PORTFOLIO_PROJECTS}
+        allProjects={projects}
         onClose={() => setSelectedProject(null)}
         onSelectProject={(project) => setSelectedProject(project)}
       />
