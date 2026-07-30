@@ -1,8 +1,8 @@
 import { createClient } from '@sanity/client';
 import imageUrlBuilder from '@sanity/image-url';
 
-// Environment variables or fallback default project ID
-export const SANITY_PROJECT_ID = import.meta.env.VITE_SANITY_PROJECT_ID || '';
+// Environment variables or default user Sanity project ID
+export const SANITY_PROJECT_ID = import.meta.env.VITE_SANITY_PROJECT_ID || 'fko873di';
 export const SANITY_DATASET = import.meta.env.VITE_SANITY_DATASET || 'production';
 
 export const sanityClient = createClient({
