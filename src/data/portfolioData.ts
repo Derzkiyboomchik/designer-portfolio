@@ -38,29 +38,28 @@ export interface ProfileData {
 }
 
 export const PROFILE_DATA: ProfileData = {
-  name: "ELENA VANCE",
+  name: "KRYLOVA ANNA",
   role: "Principal Visual & Spatial Designer",
-  location: "Zurich & Paris",
+  location: "Moscow & Saint Petersburg",
   avatarUrl: "./projects/avatar.jpg",
-  bio: "Elena Vance (b. 1994, Zurich) operates at the intersection of architectural minimalism, brand typography, and digital spatial environments. Former Senior Art Director at Studio Müller, her practice explores purity of form, structural rhythm, and tactile typography across print and interactive mediums.",
+  bio: "Anna Krylova (b. 1996, Moscow) operates at the intersection of architectural minimalism, brand typography, and digital spatial environments. Her practice explores purity of form, structural rhythm, and tactile typography across print and interactive mediums.",
   manifesto: "Purity of form. Generous white space. Functional clarity without compromise.",
   stats: [
     { label: "Projects", value: "48" },
     { label: "Awards", value: "14" },
     { label: "Experience", value: "8+ Yrs" },
-    { label: "Location", value: "Zurich" }
+    { label: "Location", value: "Moscow" }
   ],
   clients: [
-    "Vitra",
-    "Le Corbusier Foundation",
+    "Garage Museum of Contemporary Art",
+    "Strelka Institute",
     "Bang & Olufsen",
-    "Neue Zürcher Zeitung",
     "Aesop",
     "Acne Studios",
-    "Pro Helvetia"
+    "Vitra SA"
   ],
   awards: [
-    { year: "2025", title: "Swiss Design Award — Spatial Category", organization: "Federal Office of Culture" },
+    { year: "2025", title: "Russian Design Award — Spatial Category", organization: "Design Center" },
     { year: "2024", title: "TDC New York Certificate of Typographic Excellence", organization: "Type Directors Club" },
     { year: "2023", title: "Red Dot: Best of the Best", organization: "Red Dot Design Museum" },
     { year: "2022", title: "100 Beste Plakate — Winner", organization: "100 Beste Plakate e.V." }
@@ -73,13 +72,13 @@ export const PROFILE_DATA: ProfileData = {
     "Creative Direction & Curation"
   ],
   contact: {
-    email: "elena.vance@studio-swiss.ch",
-    phone: "+41 44 892 10 44",
-    studio: "Gotthardstrasse 26, 8002 Zürich, Switzerland",
-    instagram: "instagram.com/elena.vance.studio",
-    behance: "behance.net/elena-vance",
-    linkedin: "linkedin.com/in/elena-vance",
-    readcv: "read.cv/elena.vance"
+    email: "krylova.anna@studio-design.ru",
+    phone: "+7 495 892 10 44",
+    studio: "Tverskaya St 14, Moscow, Russia",
+    instagram: "instagram.com/krylova.anna.studio",
+    behance: "behance.net/krylova-anna",
+    linkedin: "linkedin.com/in/krylova-anna",
+    readcv: "read.cv/krylova.anna"
   }
 };
 
@@ -97,10 +96,10 @@ export const PORTFOLIO_PROJECTS: Project[] = [
       "./projects/project-1-a.jpg",
       "./projects/project-1-b.jpg"
     ],
-    description: "A 320-page hardcover publication investigating post-war Brutalist architectural landmarks across Basel and Zurich. Features custom grid system, blind debossed cloth cover, and high-density silver ink on uncoated cotton paper.",
-    client: "Kunsthalle Zurich",
+    description: "A 320-page hardcover publication investigating post-war Brutalist architectural landmarks. Features custom grid system, blind debossed cloth cover, and high-density silver ink on uncoated cotton paper.",
+    client: "Museum of Modern Art",
     tools: ["InDesign", "Glyphs", "Paper Prototyping", "Specialty Lithography"],
-    location: "Zurich, Switzerland",
+    location: "Moscow, Russia",
     featured: true
   },
   {
@@ -115,10 +114,10 @@ export const PORTFOLIO_PROJECTS: Project[] = [
     secondaryImages: [
       "./projects/project-2-a.jpg"
     ],
-    description: "Spatial direction and tactile interior elements for Aesop's retail concept store in Geneva. Utilizing raw Swiss Valser quartz, bead-blasted stainless steel, and warm linear lighting to create a meditative sanctuary.",
-    client: "Aesop Switzerland",
+    description: "Spatial direction and tactile interior elements for Aesop's flagship retail store. Utilizing raw quartz, bead-blasted stainless steel, and warm linear lighting to create a meditative sanctuary.",
+    client: "Aesop Retail",
     tools: ["AutoCAD", "Rhino 3D", "Material Research", "Lighting Design"],
-    location: "Geneva, Switzerland",
+    location: "Saint Petersburg, Russia",
     featured: true
   },
   {
@@ -133,10 +132,10 @@ export const PORTFOLIO_PROJECTS: Project[] = [
     secondaryImages: [
       "./projects/project-3-a.jpg"
     ],
-    description: "A geometric neo-grotesque variable font designed specifically for high-contrast Swiss poster layouts and high-density digital displays. Includes 18 weights and comprehensive extended Latin glyphs.",
-    client: "Niggli Type Foundry",
+    description: "A geometric neo-grotesque variable font designed specifically for high-contrast poster layouts and high-density digital displays. Includes 18 weights and comprehensive extended glyphs.",
+    client: "Type Foundry",
     tools: ["Glyphs 3", "Python Scripts", "Specimen Poster Print"],
-    location: "Basel, Switzerland"
+    location: "Moscow, Russia"
   },
   {
     id: "project-4",
@@ -150,15 +149,15 @@ export const PORTFOLIO_PROJECTS: Project[] = [
     secondaryImages: [
       "./projects/project-4-a.jpg"
     ],
-    description: "Extensive architectural photography project capturing the stark geometric skyward perspectives in Zurich's financial core during peak noon sun.",
-    client: "NZZ Folio Magazine",
+    description: "Extensive architectural photography project capturing stark geometric skyward perspectives during peak noon sun.",
+    client: "Design Magazine",
     tools: ["Large Format Hasselblad", "Monochrome Processing", "Silver Halide Printing"],
-    location: "Zurich, Switzerland"
+    location: "Moscow, Russia"
   },
   {
     id: "project-5",
     title: "HORIZON SOUND PAVILION",
-    subtitle: "Acoustic Reflection Structure on Vitra Campus",
+    subtitle: "Acoustic Reflection Structure",
     category: "Spatial",
     year: "2024",
     aspectRatio: "21/9",
@@ -170,7 +169,7 @@ export const PORTFOLIO_PROJECTS: Project[] = [
     description: "Temporary installation pavilion engineered for deep listening experiences. Seamless curved birch plywood sound reflectors disperse natural ambient echoes with zero electronic amplification.",
     client: "Vitra Design Museum",
     tools: ["Grasshopper", "Acoustic Simulation", "CNC Timber Milling"],
-    location: "Weil am Rhein, Germany",
+    location: "Moscow, Russia",
     featured: true
   },
   {
@@ -186,9 +185,9 @@ export const PORTFOLIO_PROJECTS: Project[] = [
       "./projects/project-6-a.jpg"
     ],
     description: "Screen printed dynamic posters created via custom real-time GLSL shader algorithms that translate solar elevation data into precise geometric shadow gradients.",
-    client: "Art Basel",
+    client: "Art Biennale",
     tools: ["TouchDesigner", "GLSL", "Silkscreen Print", "Pantone Metallic Inks"],
-    location: "Basel, Switzerland"
+    location: "Moscow, Russia"
   },
   {
     id: "project-7",
@@ -202,15 +201,15 @@ export const PORTFOLIO_PROJECTS: Project[] = [
     secondaryImages: [
       "./projects/project-7-a.jpg"
     ],
-    description: "Brand ecosystem, micro-engraving typography, tactile box packaging, and digital flagship portal for an avant-garde independent Swiss watchmaker.",
+    description: "Brand ecosystem, micro-engraving typography, tactile box packaging, and digital flagship portal for an avant-garde independent watchmaker.",
     client: "Chronos Workshop SA",
     tools: ["Figma", "Micro-Typography", "Aluminum Anodizing", "Debossing"],
-    location: "La Chaux-de-Fonds, Switzerland"
+    location: "Moscow, Russia"
   },
   {
     id: "project-8",
     title: "VOID & STRUCTURE",
-    subtitle: "Le Corbusier Exhibition Catalogue",
+    subtitle: "Exhibition Architecture Catalogue",
     category: "Editorial",
     year: "2023",
     aspectRatio: "2/3",
@@ -219,10 +218,10 @@ export const PORTFOLIO_PROJECTS: Project[] = [
     secondaryImages: [
       "./projects/project-8-a.jpg"
     ],
-    description: "Exhibition design system and accompanying catalog celebrating 100 years of Le Corbusier's architectural drawings. Printed on Swiss fedrigoni cotton papers.",
-    client: "Le Corbusier Foundation",
+    description: "Exhibition design system and accompanying catalog celebrating architectural drawings. Printed on fedrigoni cotton papers.",
+    client: "Art Foundation",
     tools: ["InDesign", "Grid Architecture", "Foil Stamping"],
-    location: "Paris, France"
+    location: "Saint Petersburg, Russia"
   },
   {
     id: "project-9",
@@ -236,10 +235,10 @@ export const PORTFOLIO_PROJECTS: Project[] = [
     secondaryImages: [
       "./projects/project-9-a.jpg"
     ],
-    description: "Sound-absorbing vertical partitions crafted from recycled high-density Swiss felt and hidden magnetic structural connectors for open gallery spaces.",
-    client: "USM Modular Furniture",
+    description: "Sound-absorbing vertical partitions crafted from recycled high-density felt and hidden magnetic structural connectors for open gallery spaces.",
+    client: "Modular Furniture",
     tools: ["SolidWorks", "Acoustic Testing", "Felt Processing"],
-    location: "Bern, Switzerland"
+    location: "Moscow, Russia"
   },
   {
     id: "project-10",
@@ -256,7 +255,7 @@ export const PORTFOLIO_PROJECTS: Project[] = [
     description: "Interactive canvas app and desktop player designed for spatial audio mixing. Uses pure black canvas, ultra-fine 1px vector lines, and fluid haptic feedback.",
     client: "Bang & Olufsen",
     tools: ["Framer", "React", "WebAudio API", "UI Prototyping"],
-    location: "Copenhagen, Denmark"
+    location: "Moscow, Russia"
   },
   {
     id: "project-11",
@@ -273,7 +272,7 @@ export const PORTFOLIO_PROJECTS: Project[] = [
     description: "Suspended architectural illumination element engineered from 3-meter seamless extruded aluminum beams with touch-sensitive dimming zones.",
     client: "Belux Lighting",
     tools: ["Industrial Design", "LED Prototyping", "CNC Anodizing"],
-    location: "Zurich, Switzerland"
+    location: "Moscow, Russia"
   },
   {
     id: "project-12",
@@ -287,9 +286,9 @@ export const PORTFOLIO_PROJECTS: Project[] = [
     secondaryImages: [
       "./projects/project-12-a.jpg"
     ],
-    description: "Extreme environment observatory shell in the Engadin valley, built to withstand alpine winter conditions with minimal environmental footprint.",
-    client: "Alpine Research Institute",
+    description: "Extreme environment observatory shell built to withstand winter conditions with minimal environmental footprint.",
+    client: "Research Institute",
     tools: ["Parametric Architecture", "Zinc Cladding", "Thermal Modeling"],
-    location: "St. Moritz, Switzerland"
+    location: "Sochi, Russia"
   }
 ];
