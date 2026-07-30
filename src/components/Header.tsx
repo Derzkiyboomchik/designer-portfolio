@@ -43,9 +43,6 @@ export const Header: React.FC<HeaderProps> = ({ onOpenDrawer, profile = PROFILE_
               <h1 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-light tracking-tight text-[#111111] dark:text-white">
                 {profile.name}
               </h1>
-              <span className="text-[10px] font-mono tracking-widest px-2.5 py-1 border border-[#111111]/15 dark:border-white/20 uppercase rounded-full text-[#555] dark:text-[#aaa]">
-                {profile.location}
-              </span>
             </div>
 
             <p className="font-mono text-xs text-[#666] dark:text-[#999] tracking-wider uppercase">

@@ -1,5 +1,5 @@
 import { sanityClient, urlFor, SANITY_PROJECT_ID } from './client';
-import { PORTFOLIO_PROJECTS, PROFILE_DATA, type Project, type ProfileData } from '../data/portfolioData';
+import { PROFILE_DATA, type Project, type ProfileData } from '../data/portfolioData';
 
 // GROQ query to fetch all portfolio projects from Sanity
 const PROJECTS_QUERY = `*[_type == "project"] | order(_createdAt desc) {
@@ -32,16 +32,15 @@ const PROFILE_QUERY = `*[_type == "profile"][0] {
 
 export async function fetchPortfolioProjects(): Promise<Project[]> {
   if (!SANITY_PROJECT_ID) {
-    console.log('[Sanity] No VITE_SANITY_PROJECT_ID provided, using local portfolio data.');
-    return PORTFOLIO_PROJECTS;
+    return [];
   }
 
   try {
     const sanityData = await sanityClient.fetch(PROJECTS_QUERY);
     
     if (!sanityData || sanityData.length === 0) {
-      console.warn('[Sanity] Projects query returned empty array, using local fallback.');
-      return PORTFOLIO_PROJECTS;
+      console.log('[Sanity] Projects query returned empty array (0 documents).');
+      return [];
     }
 
     return sanityData.map((item: any) => ({
@@ -63,8 +62,8 @@ export async function fetchPortfolioProjects(): Promise<Project[]> {
       featured: Boolean(item.featured),
     }));
   } catch (error) {
-    console.error('[Sanity] Error fetching projects from Sanity API, using local fallback:', error);
-    return PORTFOLIO_PROJECTS;
+    console.error('[Sanity] Error fetching projects from Sanity API:', error);
+    return [];
   }
 }
 
@@ -91,7 +90,7 @@ export async function fetchProfileData(): Promise<ProfileData> {
       },
     };
   } catch (error) {
-    console.error('[Sanity] Error fetching profile from Sanity API, using local fallback:', error);
+    console.error('[Sanity] Error fetching profile from Sanity API:', error);
     return PROFILE_DATA;
   }
 }

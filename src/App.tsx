@@ -5,7 +5,8 @@ import { ProfileDrawer } from './components/ProfileDrawer';
 import { LightboxModal } from './components/LightboxModal';
 import { ThemeToggle } from './components/ThemeToggle';
 import { Footer } from './components/Footer';
-import { PORTFOLIO_PROJECTS, PROFILE_DATA, type Project, type ProfileData } from './data/portfolioData';
+import { SubwayRunner } from './components/SubwayRunner';
+import { PROFILE_DATA, type Project, type ProfileData } from './data/portfolioData';
 import { fetchPortfolioProjects, fetchProfileData } from './sanity/sanityService';
 
 export function App() {
@@ -18,7 +19,7 @@ export function App() {
     return true;
   });
 
-  const [projects, setProjects] = useState<Project[]>(PORTFOLIO_PROJECTS);
+  const [projects, setProjects] = useState<Project[]>([]);
   const [profile, setProfile] = useState<ProfileData>(PROFILE_DATA);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isDrawerOpen, setIsDrawerOpen] = useState<boolean>(false);
@@ -40,7 +41,7 @@ export function App() {
     }
   }, [darkMode]);
 
-  // Fetch portfolio projects and designer profile from Sanity Public API or fallback to local
+  // Fetch portfolio projects and designer profile from Sanity Public API
   useEffect(() => {
     let isMounted = true;
     
@@ -69,46 +70,51 @@ export function App() {
   return (
     <div className="min-h-screen bg-[#FAFAFA] dark:bg-[#0E0E10] text-[#111111] dark:text-[#F3F3F3] transition-colors duration-300 flex flex-col font-sans relative selection:bg-[#111] selection:text-white dark:selection:bg-white dark:selection:text-black">
       
-      {/* Top Header Row with Dynamic Profile Data */}
+      {/* Top Header Row */}
       <Header
         profile={profile}
         onOpenDrawer={() => setIsDrawerOpen(true)}
       />
 
-      {/* Main Content Masonry Grid */}
+      {/* Main Content Area */}
       <main className="flex-1">
         {isLoading ? (
           <div className="py-24 text-center space-y-3">
             <div className="w-6 h-6 border-2 border-current border-t-transparent rounded-full animate-spin mx-auto opacity-40"></div>
             <p className="font-mono text-xs text-[#888] uppercase tracking-widest">
-              LOADING SANITY DATA...
+              CONNECTING TO SANITY...
             </p>
           </div>
-        ) : (
+        ) : projects.length > 0 ? (
           <MasonryGrid
             projects={projects}
             onSelectProject={(project) => setSelectedProject(project)}
           />
+        ) : (
+          /* Render Subway Surfers Style Monochrome Runner Game when Sanity has 0 projects */
+          <SubwayRunner />
         )}
       </main>
 
-      {/* Footer with Live Clock */}
+      {/* Clean Minimal Footer */}
       <Footer />
 
-      {/* Slide-out Sidebar Drawer for Profile & Contract PDF */}
+      {/* Slide-out Sidebar Drawer */}
       <ProfileDrawer
         isOpen={isDrawerOpen}
         onClose={() => setIsDrawerOpen(false)}
         profile={profile}
       />
 
-      {/* Lightbox Modal for Grid Item Details */}
-      <LightboxModal
-        project={selectedProject}
-        allProjects={projects}
-        onClose={() => setSelectedProject(null)}
-        onSelectProject={(project) => setSelectedProject(project)}
-      />
+      {/* Lightbox Modal */}
+      {selectedProject && (
+        <LightboxModal
+          project={selectedProject}
+          allProjects={projects}
+          onClose={() => setSelectedProject(null)}
+          onSelectProject={(project) => setSelectedProject(project)}
+        />
+      )}
 
       {/* Theme Toggle Button (Fixed Bottom Right) */}
       <ThemeToggle
