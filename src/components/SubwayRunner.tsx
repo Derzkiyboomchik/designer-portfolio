@@ -114,37 +114,48 @@ export const SubwayRunner: React.FC = () => {
     setScore(0);
   };
 
-  // Keyboard Event Handlers supporting WASD + Arrows + Space
+  // Keyboard Event Handlers supporting WASD (English + Russian RU layout: ЦФЫВ) + Arrows + Space
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
+      const code = e.code;
       const key = e.key.toLowerCase();
 
+      // Check for Jump (W / Ц / Space / ArrowUp)
+      const isJumpKey = code === 'KeyW' || code === 'Space' || code === 'ArrowUp' || key === 'w' || key === 'ц';
+      // Check for Duck (S / Ы / ArrowDown)
+      const isDuckKey = code === 'KeyS' || code === 'ArrowDown' || key === 's' || key === 'ы';
+      // Check for Left (A / Ф / ArrowLeft)
+      const isLeftKey = code === 'KeyA' || code === 'ArrowLeft' || key === 'a' || key === 'ф';
+      // Check for Right (D / В / ArrowRight)
+      const isRightKey = code === 'KeyD' || code === 'ArrowRight' || key === 'd' || key === 'в';
+
       if (stateRef.current.status !== 'PLAYING') {
-        if (e.code === 'Space' || e.code === 'Enter' || key === 'w' || e.key === 'ArrowUp') {
+        if (isJumpKey || code === 'Enter') {
           e.preventDefault();
           startGame();
         }
         return;
       }
 
-      if (key === 'w' || e.key === 'ArrowUp' || e.code === 'Space') {
+      if (isJumpKey) {
         e.preventDefault();
         jump();
-      } else if (key === 's' || e.key === 'ArrowDown') {
+      } else if (isDuckKey) {
         e.preventDefault();
         duck();
-      } else if (key === 'a' || e.key === 'ArrowLeft') {
+      } else if (isLeftKey) {
         e.preventDefault();
         moveLeft();
-      } else if (key === 'd' || e.key === 'ArrowRight') {
+      } else if (isRightKey) {
         e.preventDefault();
         moveRight();
       }
     };
 
     const handleKeyUp = (e: KeyboardEvent) => {
+      const code = e.code;
       const key = e.key.toLowerCase();
-      if (key === 's' || e.key === 'ArrowDown') {
+      if (code === 'KeyS' || code === 'ArrowDown' || key === 's' || key === 'ы') {
         stateRef.current.isDucking = false;
       }
     };
