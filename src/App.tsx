@@ -70,14 +70,16 @@ export function App() {
   return (
     <div className="min-h-screen bg-[#FAFAFA] dark:bg-[#0E0E10] text-[#111111] dark:text-[#F3F3F3] transition-colors duration-300 flex flex-col font-sans relative selection:bg-[#111] selection:text-white dark:selection:bg-white dark:selection:text-black">
       
-      {/* Top Header Row */}
-      <Header
-        profile={profile}
-        onOpenDrawer={() => setIsDrawerOpen(true)}
-      />
+      {/* Show Header ONLY when projects exist in Sanity */}
+      {projects.length > 0 && (
+        <Header
+          profile={profile}
+          onOpenDrawer={() => setIsDrawerOpen(true)}
+        />
+      )}
 
       {/* Main Content Area */}
-      <main className="flex-1">
+      <main className="flex-1 flex flex-col justify-center">
         {isLoading ? (
           <div className="py-24 text-center space-y-3">
             <div className="w-6 h-6 border-2 border-current border-t-transparent rounded-full animate-spin mx-auto opacity-40"></div>
@@ -91,7 +93,7 @@ export function App() {
             onSelectProject={(project) => setSelectedProject(project)}
           />
         ) : (
-          /* Render Subway Surfers Style Monochrome Runner Game when Sanity has 0 projects */
+          /* Render Pixel Art Game when Sanity has 0 projects */
           <SubwayRunner />
         )}
       </main>

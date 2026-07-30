@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Play, RotateCcw, ExternalLink, ArrowUp, ArrowDown } from 'lucide-react';
+import { Play, RotateCcw, ArrowUp, ArrowDown, ArrowLeft, ArrowRight } from 'lucide-react';
 
 export const SubwayRunner: React.FC = () => {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -12,6 +12,9 @@ export const SubwayRunner: React.FC = () => {
 
   const stateRef = useRef({
     playerY: 0,
+    playerXOffset: 0,
+    targetXOffset: 0,
+    lane: 0, // -1 (Left), 0 (Center), 1 (Right)
     velocityY: 0,
     isJumping: false,
     isDucking: false,
@@ -23,6 +26,7 @@ export const SubwayRunner: React.FC = () => {
     obstacles: [] as Array<{
       id: number;
       x: number;
+      lane: number;
       width: number;
       height: number;
       type: 'CACTUS_SMALL' | 'CACTUS_TALL' | 'BIRD';
@@ -65,23 +69,37 @@ export const SubwayRunner: React.FC = () => {
   const jump = () => {
     if (!stateRef.current.isJumping) {
       stateRef.current.isJumping = true;
-      stateRef.current.velocityY = -12.5;
+      stateRef.current.velocityY = -12.8;
       stateRef.current.isDucking = false;
     }
   };
 
   const duck = () => {
     if (stateRef.current.isJumping) {
-      // Fast drop if in air
-      stateRef.current.velocityY = 14;
+      stateRef.current.velocityY = 15; // Fast drop if in air
     } else {
       stateRef.current.isDucking = true;
-      stateRef.current.duckTimer = 30;
+      stateRef.current.duckTimer = 35;
     }
+  };
+
+  const moveLeft = () => {
+    const nextLane = Math.max(-1, stateRef.current.lane - 1);
+    stateRef.current.lane = nextLane;
+    stateRef.current.targetXOffset = nextLane * 60;
+  };
+
+  const moveRight = () => {
+    const nextLane = Math.min(1, stateRef.current.lane + 1);
+    stateRef.current.lane = nextLane;
+    stateRef.current.targetXOffset = nextLane * 60;
   };
 
   const startGame = () => {
     stateRef.current.playerY = 0;
+    stateRef.current.playerXOffset = 0;
+    stateRef.current.targetXOffset = 0;
+    stateRef.current.lane = 0;
     stateRef.current.velocityY = 0;
     stateRef.current.isJumping = false;
     stateRef.current.isDucking = false;
@@ -96,28 +114,37 @@ export const SubwayRunner: React.FC = () => {
     setScore(0);
   };
 
-  // Keyboard Event Handlers
+  // Keyboard Event Handlers supporting WASD + Arrows + Space
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
+      const key = e.key.toLowerCase();
+
       if (stateRef.current.status !== 'PLAYING') {
-        if (e.code === 'Space' || e.code === 'Enter' || e.key === 'ArrowUp' || e.key === 'w' || e.key === 'W') {
+        if (e.code === 'Space' || e.code === 'Enter' || key === 'w' || e.key === 'ArrowUp') {
           e.preventDefault();
           startGame();
         }
         return;
       }
 
-      if (e.key === 'ArrowUp' || e.key === 'w' || e.key === 'W' || e.code === 'Space') {
+      if (key === 'w' || e.key === 'ArrowUp' || e.code === 'Space') {
         e.preventDefault();
         jump();
-      } else if (e.key === 'ArrowDown' || e.key === 's' || e.key === 'S') {
+      } else if (key === 's' || e.key === 'ArrowDown') {
         e.preventDefault();
         duck();
+      } else if (key === 'a' || e.key === 'ArrowLeft') {
+        e.preventDefault();
+        moveLeft();
+      } else if (key === 'd' || e.key === 'ArrowRight') {
+        e.preventDefault();
+        moveRight();
       }
     };
 
     const handleKeyUp = (e: KeyboardEvent) => {
-      if (e.key === 'ArrowDown' || e.key === 's' || e.key === 'S') {
+      const key = e.key.toLowerCase();
+      if (key === 's' || e.key === 'ArrowDown') {
         stateRef.current.isDucking = false;
       }
     };
@@ -130,7 +157,7 @@ export const SubwayRunner: React.FC = () => {
     };
   }, []);
 
-  // Main 60fps Pixel-Art Canvas Loop
+  // Main 60fps Canvas Loop
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -144,7 +171,7 @@ export const SubwayRunner: React.FC = () => {
       const width = (canvas.width = canvas.parentElement?.clientWidth || 800);
       const height = (canvas.height = 360);
 
-      // Pixel Art Crisp Settings
+      // Pixel Art Settings
       ctx.imageSmoothingEnabled = false;
 
       const primaryColor = isDark ? '#FFFFFF' : '#000000';
@@ -163,6 +190,9 @@ export const SubwayRunner: React.FC = () => {
         state.speed = Math.min(10.5, 5.2 + state.score * 0.0035);
         setScore(Math.floor(state.score));
 
+        // Smooth X Offset Interpolation for Lane Switching
+        state.playerXOffset += (state.targetXOffset - state.playerXOffset) * 0.25;
+
         // Animation Frame Counter
         state.animTimer += 1;
         if (state.animTimer >= 6) {
@@ -170,7 +200,7 @@ export const SubwayRunner: React.FC = () => {
           state.animTimer = 0;
         }
 
-        // Player Jump Physics
+        // Jump Physics
         if (state.isJumping) {
           state.playerY += state.velocityY;
           state.velocityY += 0.65; // Gravity
@@ -188,13 +218,12 @@ export const SubwayRunner: React.FC = () => {
           }
         }
 
-        // Move Background Clouds
+        // Move Background Clouds & Ground Dots
         state.clouds.forEach((cloud) => {
           cloud.x -= state.speed * 0.2;
           if (cloud.x < -80) cloud.x = width + 50;
         });
 
-        // Move Ground Dots
         state.groundDots.forEach((dot) => {
           dot.x -= state.speed;
           if (dot.x < 0) dot.x = width;
@@ -205,6 +234,7 @@ export const SubwayRunner: React.FC = () => {
         if (state.nextSpawnTimer <= 0) {
           const types: Array<'CACTUS_SMALL' | 'CACTUS_TALL' | 'BIRD'> = ['CACTUS_SMALL', 'CACTUS_TALL', 'BIRD'];
           const chosenType = types[Math.floor(Math.random() * types.length)];
+          const chosenLane = Math.floor(Math.random() * 3) - 1; // -1, 0, 1
 
           let obsWidth = 24;
           let obsHeight = 44;
@@ -219,24 +249,24 @@ export const SubwayRunner: React.FC = () => {
           } else if (chosenType === 'BIRD') {
             obsWidth = 36;
             obsHeight = 26;
-            yOffset = Math.random() > 0.5 ? 42 : 18; // Flying high or low
+            yOffset = Math.random() > 0.5 ? 42 : 18;
           }
 
           state.obstacles.push({
             id: Date.now() + Math.random(),
             x: width + 20,
+            lane: chosenLane,
             width: obsWidth,
             height: obsHeight,
             type: chosenType,
             yOffset,
           });
 
-          // Minimum gap between obstacles for fair balanced gameplay
           state.nextSpawnTimer = Math.floor(Math.random() * 45 + 50 - state.speed * 1.5);
         }
 
         // Update & Check Obstacles
-        const playerX = 80;
+        const playerBaseX = 120 + state.playerXOffset;
         const playerWidth = state.isDucking ? 46 : 30;
         const playerHeight = state.isDucking ? 22 : 46;
         const playerTopY = groundY - playerHeight + state.playerY;
@@ -251,10 +281,10 @@ export const SubwayRunner: React.FC = () => {
           const obsBottom = groundY - obs.yOffset;
 
           // Precise Pixel Box Collision Check
-          const margin = 5; // Generous hitbox for player-friendly balance
+          const margin = 5;
           if (
-            playerX + playerWidth - margin > obsLeft &&
-            playerX + margin < obsRight &&
+            playerBaseX + playerWidth - margin > obsLeft &&
+            playerBaseX + margin < obsRight &&
             playerTopY + playerHeight - margin > obsTop &&
             playerTopY + margin < obsBottom
           ) {
@@ -282,7 +312,6 @@ export const SubwayRunner: React.FC = () => {
         const cx = cloud.x;
         const cy = cloud.y;
         ctx.globalAlpha = 0.25;
-        // Pixel Cloud shape
         ctx.fillRect(cx, cy, 36, 10);
         ctx.fillRect(cx + 6, cy - 6, 24, 6);
         ctx.globalAlpha = 1.0;
@@ -297,29 +326,22 @@ export const SubwayRunner: React.FC = () => {
         ctx.fillRect(dot.x, groundY + dot.y, dot.size, dot.size);
       });
 
-      // 4. Draw Obstacles (Pixel Cacti & Birds)
+      // 4. Draw Obstacles
       state.obstacles.forEach((obs) => {
         const ox = Math.floor(obs.x);
         const oy = Math.floor(groundY - obs.height - obs.yOffset);
 
         if (obs.type === 'CACTUS_SMALL' || obs.type === 'CACTUS_TALL') {
-          // Pixel Cactus / Pillar
           ctx.fillRect(ox + obs.width * 0.35, oy, obs.width * 0.3, obs.height);
-          // Left Arm
           ctx.fillRect(ox, oy + obs.height * 0.3, obs.width * 0.45, 6);
           ctx.fillRect(ox, oy + obs.height * 0.15, 6, obs.height * 0.2);
-          // Right Arm
           ctx.fillRect(ox + obs.width * 0.55, oy + obs.height * 0.4, obs.width * 0.45, 6);
           ctx.fillRect(ox + obs.width - 6, oy + obs.height * 0.25, 6, obs.height * 0.2);
         } else if (obs.type === 'BIRD') {
-          // Pixel Bird / Flying Drone
           const wingUp = state.animFrame % 2 === 0;
           ctx.fillRect(ox, oy + 8, obs.width, 10);
           ctx.fillRect(ox + 8, oy + 4, 16, 4);
-          // Head / Eye
           ctx.fillRect(ox, oy + 4, 8, 6);
-
-          // Wings
           if (wingUp) {
             ctx.fillRect(ox + 12, oy - 8, 8, 14);
           } else {
@@ -328,17 +350,15 @@ export const SubwayRunner: React.FC = () => {
         }
       });
 
-      // 5. Draw Pixel Runner Character (Google Dino / Swiss Pixel Style)
-      const px = 80;
+      // 5. Draw Pixel Runner Character
+      const px = Math.floor(120 + state.playerXOffset);
       const py = Math.floor(groundY + state.playerY);
 
       ctx.fillStyle = primaryColor;
 
       if (state.isDucking && !state.isJumping) {
-        // Ducking Pixel Silhouette
         ctx.fillRect(px, py - 22, 46, 18);
-        ctx.fillRect(px + 30, py - 26, 16, 10); // Head forward
-        // Running legs when ducking
+        ctx.fillRect(px + 30, py - 26, 16, 10);
         if (state.animFrame % 2 === 0) {
           ctx.fillRect(px + 6, py - 4, 8, 4);
           ctx.fillRect(px + 28, py - 4, 8, 4);
@@ -347,18 +367,15 @@ export const SubwayRunner: React.FC = () => {
           ctx.fillRect(px + 36, py - 4, 8, 4);
         }
       } else if (state.isJumping) {
-        // Jumping Pixel Silhouette (Legs together)
         ctx.fillRect(px + 6, py - 46, 22, 28);
-        ctx.fillRect(px + 12, py - 54, 14, 10); // Head
-        ctx.fillRect(px + 8, py - 18, 6, 14); // Left Leg
-        ctx.fillRect(px + 18, py - 18, 6, 14); // Right Leg
+        ctx.fillRect(px + 12, py - 54, 14, 10);
+        ctx.fillRect(px + 8, py - 18, 6, 14);
+        ctx.fillRect(px + 18, py - 18, 6, 14);
       } else {
-        // Standard Running Pixel Silhouette
-        ctx.fillRect(px + 6, py - 46, 22, 28); // Torso
-        ctx.fillRect(px + 12, py - 54, 14, 10); // Head
-        ctx.fillRect(px + 2, py - 40, 8, 14); // Arm
+        ctx.fillRect(px + 6, py - 46, 22, 28);
+        ctx.fillRect(px + 12, py - 54, 14, 10);
+        ctx.fillRect(px + 2, py - 40, 8, 14);
 
-        // Animated Running Legs (4-frame cycle)
         if (state.animFrame === 0) {
           ctx.fillRect(px + 6, py - 18, 6, 18);
           ctx.fillRect(px + 18, py - 18, 6, 10);
@@ -376,7 +393,7 @@ export const SubwayRunner: React.FC = () => {
         }
       }
 
-      // 6. Draw 8-Bit Score Counter in top right
+      // 6. 8-Bit Score Counter
       ctx.fillStyle = primaryColor;
       ctx.font = '14px monospace';
       ctx.textAlign = 'right';
@@ -403,7 +420,7 @@ export const SubwayRunner: React.FC = () => {
           {gameState === 'START' && (
             <div className="absolute inset-0 bg-black/50 dark:bg-black/70 backdrop-blur-sm flex flex-col items-center justify-center p-6 text-center space-y-5 text-white z-20">
               <span className="text-[10px] font-mono tracking-widest uppercase px-3 py-1 bg-white/20 backdrop-blur-md rounded-full border border-white/20">
-                8-BIT MONOCHROME EDITION
+                8-BIT MONOCHROME RUNNER
               </span>
 
               <h2 className="font-mono text-3xl sm:text-4xl font-bold tracking-tight">
@@ -411,7 +428,8 @@ export const SubwayRunner: React.FC = () => {
               </h2>
 
               <p className="font-mono text-xs text-white/80 max-w-sm leading-relaxed">
-                Press <strong className="text-white">SPACE / ↑ / W</strong> to Jump, and <strong className="text-white">↓ / S</strong> to Duck under birds.
+                Use <strong className="text-white">WASD</strong> or <strong className="text-white">ARROWS</strong> to move:<br />
+                <strong className="text-white">W / SPACE</strong> = Jump • <strong className="text-white">S</strong> = Duck • <strong className="text-white">A / D</strong> = Move
               </p>
 
               <button
@@ -424,7 +442,7 @@ export const SubwayRunner: React.FC = () => {
             </div>
           )}
 
-          {/* Game Over Screen Overlay */}
+          {/* Game Over Screen Overlay (Clean without studio button) */}
           {gameState === 'GAMEOVER' && (
             <div className="absolute inset-0 bg-black/80 backdrop-blur-md flex flex-col items-center justify-center p-6 text-center space-y-5 text-white z-20">
               <span className="text-xs font-mono tracking-widest uppercase text-red-400">
@@ -447,48 +465,58 @@ export const SubwayRunner: React.FC = () => {
                 </div>
               </div>
 
-              <div className="flex flex-wrap items-center justify-center gap-3">
-                <button
-                  onClick={startGame}
-                  className="px-6 py-2.5 bg-white text-[#111] font-mono text-xs font-bold tracking-widest uppercase rounded-full hover:scale-105 transition-all flex items-center gap-2"
-                >
-                  <RotateCcw className="w-4 h-4" />
-                  RESTART (SPACE)
-                </button>
-
-                <a
-                  href="https://designer-portfolio-fko873di.sanity.studio"
-                  target="_blank"
-                  rel="noreferrer"
-                  className="px-5 py-2.5 bg-white/10 hover:bg-white/20 border border-white/20 text-white font-mono text-xs tracking-widest uppercase rounded-full transition-all flex items-center gap-2"
-                >
-                  SANITY STUDIO
-                  <ExternalLink className="w-3.5 h-3.5" />
-                </a>
-              </div>
+              <button
+                onClick={startGame}
+                className="px-8 py-3 bg-white text-[#111] font-mono text-xs font-bold tracking-widest uppercase rounded-full hover:scale-105 active:scale-95 transition-all flex items-center gap-2"
+              >
+                <RotateCcw className="w-4 h-4" />
+                RESTART (SPACE / ENTER)
+              </button>
             </div>
           )}
         </div>
 
-        {/* Mobile / On-screen Control Buttons */}
-        <div className="p-3 border-t border-[#E5E5E5] dark:border-[#222225] bg-[#F0F0F0] dark:bg-[#141416] flex items-center justify-between gap-4">
-          <div className="text-[11px] font-mono text-[#777] dark:text-[#888] hidden sm:block">
-            CONTROLS: [SPACE / ↑ / W] JUMP  |  [↓ / S] DUCK
+        {/* Mobile / On-screen Control Buttons with T-shape layout (Jump on top center, 3 buttons below) */}
+        <div className="p-4 border-t border-[#E5E5E5] dark:border-[#222225] bg-[#F0F0F0] dark:bg-[#141416] flex flex-col items-center gap-3">
+          <div className="text-[11px] font-mono text-[#777] dark:text-[#888] hidden sm:block text-center">
+            CONTROLS: [W / SPACE] JUMP  |  [S] DUCK  |  [A / D] MOVE LEFT / RIGHT
           </div>
 
-          <div className="flex items-center gap-2 mx-auto sm:mr-0">
+          {/* T-Shape D-Pad Layout */}
+          <div className="flex flex-col items-center gap-2">
+            {/* Top Row (Jump centered) */}
             <button
               onClick={jump}
-              className="px-4 py-2 bg-white dark:bg-[#222226] border border-[#DDD] dark:border-[#333] rounded-lg active:scale-95 font-mono text-xs font-semibold text-[#111] dark:text-white flex items-center gap-1.5"
+              className="px-6 py-2.5 bg-white dark:bg-[#222226] border border-[#DDD] dark:border-[#333] rounded-lg active:scale-95 font-mono text-xs font-semibold text-[#111] dark:text-white flex items-center gap-1.5 shadow-sm"
+              aria-label="Jump (W / Space)"
             >
-              <ArrowUp className="w-4 h-4" /> JUMP
+              <ArrowUp className="w-4 h-4" /> JUMP (W)
             </button>
-            <button
-              onClick={duck}
-              className="px-4 py-2 bg-white dark:bg-[#222226] border border-[#DDD] dark:border-[#333] rounded-lg active:scale-95 font-mono text-xs font-semibold text-[#111] dark:text-white flex items-center gap-1.5"
-            >
-              <ArrowDown className="w-4 h-4" /> DUCK
-            </button>
+
+            {/* Bottom Row (Left | Duck | Right) */}
+            <div className="flex items-center gap-2">
+              <button
+                onClick={moveLeft}
+                className="px-4 py-2.5 bg-white dark:bg-[#222226] border border-[#DDD] dark:border-[#333] rounded-lg active:scale-95 font-mono text-xs font-semibold text-[#111] dark:text-white flex items-center gap-1 shadow-sm"
+                aria-label="Move Left (A)"
+              >
+                <ArrowLeft className="w-4 h-4" /> LEFT (A)
+              </button>
+              <button
+                onClick={duck}
+                className="px-4 py-2.5 bg-white dark:bg-[#222226] border border-[#DDD] dark:border-[#333] rounded-lg active:scale-95 font-mono text-xs font-semibold text-[#111] dark:text-white flex items-center gap-1 shadow-sm"
+                aria-label="Duck (S)"
+              >
+                <ArrowDown className="w-4 h-4" /> DUCK (S)
+              </button>
+              <button
+                onClick={moveRight}
+                className="px-4 py-2.5 bg-white dark:bg-[#222226] border border-[#DDD] dark:border-[#333] rounded-lg active:scale-95 font-mono text-xs font-semibold text-[#111] dark:text-white flex items-center gap-1 shadow-sm"
+                aria-label="Move Right (D)"
+              >
+                RIGHT (D) <ArrowRight className="w-4 h-4" />
+              </button>
+            </div>
           </div>
         </div>
 
