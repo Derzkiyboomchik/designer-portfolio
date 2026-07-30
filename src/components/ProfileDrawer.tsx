@@ -1,15 +1,16 @@
 import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { PROFILE_DATA } from '../data/portfolioData';
+import { PROFILE_DATA, type ProfileData } from '../data/portfolioData';
 import { generateContractPDF } from '../utils/generateContractPDF';
 import { X, Download, Copy, Check, ArrowUpRight, Award, Layers, Sparkles } from 'lucide-react';
 
 interface ProfileDrawerProps {
   isOpen: boolean;
   onClose: () => void;
+  profile?: ProfileData;
 }
 
-export const ProfileDrawer: React.FC<ProfileDrawerProps> = ({ isOpen, onClose }) => {
+export const ProfileDrawer: React.FC<ProfileDrawerProps> = ({ isOpen, onClose, profile = PROFILE_DATA }) => {
   const [copied, setCopied] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
 
@@ -29,7 +30,7 @@ export const ProfileDrawer: React.FC<ProfileDrawerProps> = ({ isOpen, onClose })
   }, [isOpen, onClose]);
 
   const handleCopyEmail = () => {
-    navigator.clipboard.writeText(PROFILE_DATA.contact.email);
+    navigator.clipboard.writeText(profile.contact.email);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
@@ -91,24 +92,24 @@ export const ProfileDrawer: React.FC<ProfileDrawerProps> = ({ isOpen, onClose })
                 {/* Avatar & Title Header */}
                 <div className="flex items-center gap-5">
                   <img
-                    src={PROFILE_DATA.avatarUrl}
-                    alt={PROFILE_DATA.name}
+                    src={profile.avatarUrl}
+                    alt={profile.name}
                     className="w-20 h-20 rounded-full object-cover border border-[#111]/20 dark:border-white/30 p-0.5"
                   />
                   <div>
                     <h2 className="font-serif text-2xl font-normal tracking-tight text-[#111] dark:text-white">
-                      {PROFILE_DATA.name}
+                      {profile.name}
                     </h2>
                     <p className="font-mono text-xs text-[#666] dark:text-[#999] tracking-wider uppercase mt-0.5">
-                      {PROFILE_DATA.role}
+                      {profile.role}
                     </p>
                     <p className="font-mono text-[11px] text-[#888] tracking-widest uppercase mt-1">
-                      {PROFILE_DATA.location}
+                      {profile.location}
                     </p>
                   </div>
                 </div>
 
-                {/* Contract Download Action Card (PROMINENT REQUIREMENT) */}
+                {/* Contract Download Action Card */}
                 <div className="p-5 border border-[#111111]/15 dark:border-white/20 rounded-xl bg-[#F0F0F0] dark:bg-[#1A1A1E] space-y-3">
                   <div className="flex items-center justify-between">
                     <span className="font-mono text-xs tracking-widest uppercase font-semibold text-[#111] dark:text-white flex items-center gap-2">
@@ -140,10 +141,10 @@ export const ProfileDrawer: React.FC<ProfileDrawerProps> = ({ isOpen, onClose })
                     BIOGRAPHY & PRACTICE
                   </h3>
                   <p className="font-sans text-sm font-light text-[#333] dark:text-[#ccc] leading-relaxed">
-                    {PROFILE_DATA.bio}
+                    {profile.bio}
                   </p>
                   <blockquote className="pl-3 border-l-2 border-[#111] dark:border-white text-xs font-serif italic text-[#555] dark:text-[#aaa] py-1">
-                    "{PROFILE_DATA.manifesto}"
+                    "{profile.manifesto}"
                   </blockquote>
                 </div>
 
@@ -154,7 +155,7 @@ export const ProfileDrawer: React.FC<ProfileDrawerProps> = ({ isOpen, onClose })
                     SERVICES & EXPERTISE
                   </h3>
                   <ul className="space-y-2">
-                    {PROFILE_DATA.services.map((service, idx) => (
+                    {profile.services.map((service, idx) => (
                       <li key={idx} className="font-sans text-xs text-[#333] dark:text-[#ddd] flex items-center gap-2">
                         <span className="text-xs text-[#888] font-mono">0{idx + 1}.</span>
                         {service}
@@ -169,7 +170,7 @@ export const ProfileDrawer: React.FC<ProfileDrawerProps> = ({ isOpen, onClose })
                     SELECT CLIENTELE
                   </h3>
                   <div className="flex flex-wrap gap-2">
-                    {PROFILE_DATA.clients.map((client, idx) => (
+                    {profile.clients.map((client, idx) => (
                       <span
                         key={idx}
                         className="px-2.5 py-1 text-[11px] font-mono border border-[#E0E0E0] dark:border-[#2A2A30] rounded text-[#444] dark:text-[#bbb]"
@@ -187,7 +188,7 @@ export const ProfileDrawer: React.FC<ProfileDrawerProps> = ({ isOpen, onClose })
                     RECOGNITION
                   </h3>
                   <div className="space-y-2.5">
-                    {PROFILE_DATA.awards.map((award, idx) => (
+                    {profile.awards.map((award, idx) => (
                       <div key={idx} className="text-xs flex justify-between gap-4">
                         <div>
                           <p className="font-sans font-medium text-[#222] dark:text-[#eee]">{award.title}</p>
@@ -208,7 +209,7 @@ export const ProfileDrawer: React.FC<ProfileDrawerProps> = ({ isOpen, onClose })
                   {/* Email row with Copy Button */}
                   <div className="flex items-center justify-between p-3 border border-[#E5E5E5] dark:border-[#28282E] rounded-lg bg-white/50 dark:bg-[#17171A]">
                     <span className="font-mono text-xs text-[#222] dark:text-[#eee] truncate mr-2">
-                      {PROFILE_DATA.contact.email}
+                      {profile.contact.email}
                     </span>
                     <button
                       onClick={handleCopyEmail}
@@ -222,7 +223,7 @@ export const ProfileDrawer: React.FC<ProfileDrawerProps> = ({ isOpen, onClose })
                   {/* Social Links List */}
                   <div className="grid grid-cols-2 gap-2 text-xs font-mono">
                     <a
-                      href={`https://${PROFILE_DATA.contact.instagram}`}
+                      href={`https://${profile.contact.instagram}`}
                       target="_blank"
                       rel="noreferrer"
                       className="p-2.5 border border-[#E5E5E5] dark:border-[#28282E] rounded flex items-center justify-between text-[#444] dark:text-[#ccc] hover:border-[#111] dark:hover:border-white transition-colors"
@@ -231,7 +232,7 @@ export const ProfileDrawer: React.FC<ProfileDrawerProps> = ({ isOpen, onClose })
                       <ArrowUpRight className="w-3 h-3 text-[#888]" />
                     </a>
                     <a
-                      href={`https://${PROFILE_DATA.contact.behance}`}
+                      href={`https://${profile.contact.behance}`}
                       target="_blank"
                       rel="noreferrer"
                       className="p-2.5 border border-[#E5E5E5] dark:border-[#28282E] rounded flex items-center justify-between text-[#444] dark:text-[#ccc] hover:border-[#111] dark:hover:border-white transition-colors"
@@ -240,7 +241,7 @@ export const ProfileDrawer: React.FC<ProfileDrawerProps> = ({ isOpen, onClose })
                       <ArrowUpRight className="w-3 h-3 text-[#888]" />
                     </a>
                     <a
-                      href={`https://${PROFILE_DATA.contact.linkedin}`}
+                      href={`https://${profile.contact.linkedin}`}
                       target="_blank"
                       rel="noreferrer"
                       className="p-2.5 border border-[#E5E5E5] dark:border-[#28282E] rounded flex items-center justify-between text-[#444] dark:text-[#ccc] hover:border-[#111] dark:hover:border-white transition-colors"
@@ -249,7 +250,7 @@ export const ProfileDrawer: React.FC<ProfileDrawerProps> = ({ isOpen, onClose })
                       <ArrowUpRight className="w-3 h-3 text-[#888]" />
                     </a>
                     <a
-                      href={`https://${PROFILE_DATA.contact.readcv}`}
+                      href={`https://${profile.contact.readcv}`}
                       target="_blank"
                       rel="noreferrer"
                       className="p-2.5 border border-[#E5E5E5] dark:border-[#28282E] rounded flex items-center justify-between text-[#444] dark:text-[#ccc] hover:border-[#111] dark:hover:border-white transition-colors"
@@ -266,7 +267,7 @@ export const ProfileDrawer: React.FC<ProfileDrawerProps> = ({ isOpen, onClose })
               {/* Drawer Footer */}
               <div className="p-6 border-t border-[#E5E5E5] dark:border-[#222225] bg-[#FAFAFA]/90 dark:bg-[#121214]/90 text-[10px] font-mono text-[#888] dark:text-[#777] flex items-center justify-between">
                 <span>© {new Date().getFullYear()} STUDIO VANCE</span>
-                <span>ZÜRICH, SWITZERLAND</span>
+                <span>{profile.location.toUpperCase()}</span>
               </div>
 
             </motion.div>

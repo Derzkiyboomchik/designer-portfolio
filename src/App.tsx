@@ -5,8 +5,8 @@ import { ProfileDrawer } from './components/ProfileDrawer';
 import { LightboxModal } from './components/LightboxModal';
 import { ThemeToggle } from './components/ThemeToggle';
 import { Footer } from './components/Footer';
-import { PORTFOLIO_PROJECTS, type Project } from './data/portfolioData';
-import { fetchPortfolioProjects } from './sanity/sanityService';
+import { PORTFOLIO_PROJECTS, PROFILE_DATA, type Project, type ProfileData } from './data/portfolioData';
+import { fetchPortfolioProjects, fetchProfileData } from './sanity/sanityService';
 
 export function App() {
   // Theme state defaulting to Dark Mode for high contrast aesthetic
@@ -19,6 +19,7 @@ export function App() {
   });
 
   const [projects, setProjects] = useState<Project[]>(PORTFOLIO_PROJECTS);
+  const [profile, setProfile] = useState<ProfileData>(PROFILE_DATA);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isDrawerOpen, setIsDrawerOpen] = useState<boolean>(false);
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
@@ -39,19 +40,20 @@ export function App() {
     }
   }, [darkMode]);
 
-  // Fetch portfolio projects from Sanity Public API or fallback to local
+  // Fetch portfolio projects and designer profile from Sanity Public API or fallback to local
   useEffect(() => {
     let isMounted = true;
     
-    fetchPortfolioProjects()
-      .then((data) => {
+    Promise.all([fetchPortfolioProjects(), fetchProfileData()])
+      .then(([fetchedProjects, fetchedProfile]) => {
         if (isMounted) {
-          setProjects(data);
+          setProjects(fetchedProjects);
+          setProfile(fetchedProfile);
           setIsLoading(false);
         }
       })
       .catch((err) => {
-        console.error('Failed to load portfolio projects:', err);
+        console.error('Failed to load data from Sanity:', err);
         if (isMounted) setIsLoading(false);
       });
 
@@ -67,8 +69,9 @@ export function App() {
   return (
     <div className="min-h-screen bg-[#FAFAFA] dark:bg-[#0E0E10] text-[#111111] dark:text-[#F3F3F3] transition-colors duration-300 flex flex-col font-sans relative selection:bg-[#111] selection:text-white dark:selection:bg-white dark:selection:text-black">
       
-      {/* Simplified Top Header Row */}
+      {/* Top Header Row with Dynamic Profile Data */}
       <Header
+        profile={profile}
         onOpenDrawer={() => setIsDrawerOpen(true)}
       />
 
@@ -78,7 +81,7 @@ export function App() {
           <div className="py-24 text-center space-y-3">
             <div className="w-6 h-6 border-2 border-current border-t-transparent rounded-full animate-spin mx-auto opacity-40"></div>
             <p className="font-mono text-xs text-[#888] uppercase tracking-widest">
-              LOADING SANITY API DATA...
+              LOADING SANITY DATA...
             </p>
           </div>
         ) : (
@@ -96,6 +99,7 @@ export function App() {
       <ProfileDrawer
         isOpen={isDrawerOpen}
         onClose={() => setIsDrawerOpen(false)}
+        profile={profile}
       />
 
       {/* Lightbox Modal for Grid Item Details */}

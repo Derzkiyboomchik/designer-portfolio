@@ -1,5 +1,5 @@
 import { sanityClient, urlFor, SANITY_PROJECT_ID } from './client';
-import { PORTFOLIO_PROJECTS, type Project } from '../data/portfolioData';
+import { PORTFOLIO_PROJECTS, PROFILE_DATA, type Project, type ProfileData } from '../data/portfolioData';
 
 // GROQ query to fetch all portfolio projects from Sanity
 const PROJECTS_QUERY = `*[_type == "project"] | order(_createdAt desc) {
@@ -19,8 +19,18 @@ const PROJECTS_QUERY = `*[_type == "project"] | order(_createdAt desc) {
   featured
 }`;
 
+// GROQ query to fetch single profile document from Sanity
+const PROFILE_QUERY = `*[_type == "profile"][0] {
+  name,
+  role,
+  location,
+  avatar,
+  bio,
+  manifesto,
+  email
+}`;
+
 export async function fetchPortfolioProjects(): Promise<Project[]> {
-  // If no Sanity Project ID is provided, return local fallback data
   if (!SANITY_PROJECT_ID) {
     console.log('[Sanity] No VITE_SANITY_PROJECT_ID provided, using local portfolio data.');
     return PORTFOLIO_PROJECTS;
@@ -30,11 +40,10 @@ export async function fetchPortfolioProjects(): Promise<Project[]> {
     const sanityData = await sanityClient.fetch(PROJECTS_QUERY);
     
     if (!sanityData || sanityData.length === 0) {
-      console.warn('[Sanity] Query returned empty array, falling back to local portfolio data.');
+      console.warn('[Sanity] Projects query returned empty array, using local fallback.');
       return PORTFOLIO_PROJECTS;
     }
 
-    // Format Sanity document objects to match Project interface
     return sanityData.map((item: any) => ({
       id: item._id || item.id,
       title: item.title,
@@ -54,7 +63,35 @@ export async function fetchPortfolioProjects(): Promise<Project[]> {
       featured: Boolean(item.featured),
     }));
   } catch (error) {
-    console.error('[Sanity] Error fetching from Sanity API, using local fallback:', error);
+    console.error('[Sanity] Error fetching projects from Sanity API, using local fallback:', error);
     return PORTFOLIO_PROJECTS;
+  }
+}
+
+export async function fetchProfileData(): Promise<ProfileData> {
+  if (!SANITY_PROJECT_ID) {
+    return PROFILE_DATA;
+  }
+
+  try {
+    const data = await sanityClient.fetch(PROFILE_QUERY);
+    if (!data) return PROFILE_DATA;
+
+    return {
+      ...PROFILE_DATA,
+      name: data.name || PROFILE_DATA.name,
+      role: data.role || PROFILE_DATA.role,
+      location: data.location || PROFILE_DATA.location,
+      avatarUrl: data.avatar ? urlFor(data.avatar).url() : PROFILE_DATA.avatarUrl,
+      bio: data.bio || PROFILE_DATA.bio,
+      manifesto: data.manifesto || PROFILE_DATA.manifesto,
+      contact: {
+        ...PROFILE_DATA.contact,
+        email: data.email || PROFILE_DATA.contact.email,
+      },
+    };
+  } catch (error) {
+    console.error('[Sanity] Error fetching profile from Sanity API, using local fallback:', error);
+    return PROFILE_DATA;
   }
 }

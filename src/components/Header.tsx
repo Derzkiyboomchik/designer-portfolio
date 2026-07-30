@@ -1,12 +1,13 @@
 import React from 'react';
-import { PROFILE_DATA } from '../data/portfolioData';
+import { PROFILE_DATA, type ProfileData } from '../data/portfolioData';
 import { ArrowUpRight } from 'lucide-react';
 
 interface HeaderProps {
   onOpenDrawer: () => void;
+  profile?: ProfileData;
 }
 
-export const Header: React.FC<HeaderProps> = ({ onOpenDrawer }) => {
+export const Header: React.FC<HeaderProps> = ({ onOpenDrawer, profile = PROFILE_DATA }) => {
   return (
     <header className="w-full pt-10 pb-8 px-4 sm:px-8 border-b border-[#E5E5E5] dark:border-[#222225] transition-colors">
       <div className="max-w-7xl mx-auto">
@@ -22,8 +23,8 @@ export const Header: React.FC<HeaderProps> = ({ onOpenDrawer }) => {
               aria-label="Open designer profile drawer"
             >
               <img 
-                src={PROFILE_DATA.avatarUrl} 
-                alt={PROFILE_DATA.name}
+                src={profile.avatarUrl} 
+                alt={profile.name}
                 className="w-full h-full object-cover rounded-full grayscale hover:grayscale-0 transition-all duration-500"
               />
             </button>
@@ -40,19 +41,19 @@ export const Header: React.FC<HeaderProps> = ({ onOpenDrawer }) => {
           <div className="space-y-3 max-w-3xl">
             <div className="flex flex-wrap items-center gap-3">
               <h1 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-light tracking-tight text-[#111111] dark:text-white">
-                {PROFILE_DATA.name}
+                {profile.name}
               </h1>
               <span className="text-[10px] font-mono tracking-widest px-2.5 py-1 border border-[#111111]/15 dark:border-white/20 uppercase rounded-full text-[#555] dark:text-[#aaa]">
-                ZÜRICH / PARIS
+                {profile.location}
               </span>
             </div>
 
             <p className="font-mono text-xs text-[#666] dark:text-[#999] tracking-wider uppercase">
-              {PROFILE_DATA.role}
+              {profile.role}
             </p>
 
             <p className="font-sans text-sm text-[#444] dark:text-[#bbb] leading-relaxed max-w-2xl font-light">
-              {PROFILE_DATA.bio}
+              {profile.bio}
             </p>
 
             {/* Action Links */}
@@ -68,10 +69,10 @@ export const Header: React.FC<HeaderProps> = ({ onOpenDrawer }) => {
               <span className="text-[#CCC] dark:text-[#333]">|</span>
 
               <a 
-                href={`mailto:${PROFILE_DATA.contact.email}`}
+                href={`mailto:${profile.contact.email}`}
                 className="text-[#666] dark:text-[#999] hover:text-[#111] dark:hover:text-white transition-colors"
               >
-                {PROFILE_DATA.contact.email}
+                {profile.contact.email}
               </a>
             </div>
           </div>
