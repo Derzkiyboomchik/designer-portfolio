@@ -1,6 +1,7 @@
 import React from 'react';
 import { PROFILE_DATA, type ProfileData } from '../data/portfolioData';
 import { ArrowUpRight } from 'lucide-react';
+import { ShieldText } from './ShieldText';
 
 interface HeaderProps {
   onOpenDrawer: () => void;
@@ -41,7 +42,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenDrawer, profile = PROFILE_
           <div className="space-y-3 max-w-3xl">
             <div className="flex flex-wrap items-center gap-3">
               <h1 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-light tracking-tight text-[#111111] dark:text-white">
-                {profile.name}
+                <ShieldText>{profile.name}</ShieldText>
               </h1>
             </div>
 
@@ -50,7 +51,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenDrawer, profile = PROFILE_
             </p>
 
             <p className="font-sans text-sm text-[#444] dark:text-[#bbb] leading-relaxed max-w-2xl font-light">
-              {profile.bio}
+              <ShieldText>{profile.bio}</ShieldText>
             </p>
 
             {/* Action Links */}
