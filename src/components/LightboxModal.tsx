@@ -65,6 +65,8 @@ export const LightboxModal: React.FC<LightboxModalProps> = ({
   const allImages = [project.imageUrl, ...(project.secondaryImages || [])];
   const currentImage = allImages[activeImageIndex] || project.imageUrl;
 
+  const hasSpecs = Boolean(project.client || project.year || project.location || (project.tools && project.tools.length > 0));
+
   return (
     <AnimatePresence>
       {project && (
@@ -131,9 +133,11 @@ export const LightboxModal: React.FC<LightboxModalProps> = ({
 
                 {/* Aspect Ratio Badge & Zoom Toggle */}
                 <div className="absolute top-4 left-4 flex items-center gap-2">
-                  <span className="px-2.5 py-1 text-[10px] font-mono tracking-widest uppercase bg-black/40 text-white backdrop-blur-md rounded-full border border-white/20">
-                    {project.aspectRatioLabel}
-                  </span>
+                  {project.aspectRatioLabel && (
+                    <span className="px-2.5 py-1 text-[10px] font-mono tracking-widest uppercase bg-black/40 text-white backdrop-blur-md rounded-full border border-white/20">
+                      {project.aspectRatioLabel}
+                    </span>
+                  )}
                   <button
                     onClick={() => setIsZoomed(!isZoomed)}
                     className="p-1.5 rounded-full bg-black/40 text-white backdrop-blur-md border border-white/20 hover:bg-black/60 transition-colors"
@@ -160,102 +164,120 @@ export const LightboxModal: React.FC<LightboxModalProps> = ({
                 )}
               </div>
 
-              {/* Detailed Project Text Block (Serif Title, Sans-Serif Body) */}
+              {/* Detailed Project Text Block */}
               <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 pt-2">
                 
                 {/* Main Text Details (Left 2 Columns) */}
                 <div className="lg:col-span-2 space-y-4">
                   <div className="flex flex-wrap items-center gap-3">
-                    <span className="text-xs font-mono tracking-widest uppercase text-blue-600 dark:text-blue-400">
-                      {project.category}
-                    </span>
-                    <span className="text-[#CCC] dark:text-[#333]">|</span>
+                    {project.category && (
+                      <span className="text-xs font-mono tracking-widest uppercase text-blue-600 dark:text-blue-400">
+                        {project.category}
+                      </span>
+                    )}
+                    {project.category && <span className="text-[#CCC] dark:text-[#333]">|</span>}
                     <span className="text-xs font-mono text-[#777] dark:text-[#888]">
-                      PROJECT N° {project.id.replace('project-', '0')}
+                      PROJECT N° {project.id ? project.id.replace('project-', '0') : '01'}
                     </span>
                   </div>
 
                   {/* Title in Elegant Serif Font */}
-                  <h2 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-light tracking-tight text-[#111] dark:text-white">
-                    {project.title}
-                  </h2>
+                  {project.title && (
+                    <h2 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-light tracking-tight text-[#111] dark:text-white">
+                      {project.title}
+                    </h2>
+                  )}
 
-                  <p className="font-sans text-base text-[#444] dark:text-[#bbb] font-light leading-relaxed">
-                    {project.subtitle}
-                  </p>
-
-                  <div className="pt-2 border-t border-[#E5E5E5] dark:border-[#222225]">
-                    <p className="font-sans text-sm text-[#333] dark:text-[#ccc] leading-relaxed font-light">
-                      {project.description}
+                  {project.subtitle && (
+                    <p className="font-sans text-base text-[#444] dark:text-[#bbb] font-light leading-relaxed">
+                      {project.subtitle}
                     </p>
-                  </div>
+                  )}
+
+                  {project.description && (
+                    <div className="pt-2 border-t border-[#E5E5E5] dark:border-[#222225]">
+                      <p className="font-sans text-sm text-[#333] dark:text-[#ccc] leading-relaxed font-light">
+                        {project.description}
+                      </p>
+                    </div>
+                  )}
                 </div>
 
-                {/* Metadata Sidebar (Right 1 Column) */}
-                <div className="space-y-4 p-5 rounded-lg border border-[#E5E5E5] dark:border-[#222225] bg-[#F4F4F4] dark:bg-[#18181C]">
-                  <h3 className="font-mono text-xs tracking-widest uppercase text-[#777] dark:text-[#888] border-b border-[#E5E5E5] dark:border-[#28282E] pb-2">
-                    SPECIFICATIONS
-                  </h3>
+                {/* Metadata Sidebar (Right 1 Column) - Only rendered if fields exist */}
+                {hasSpecs && (
+                  <div className="space-y-4 p-5 rounded-lg border border-[#E5E5E5] dark:border-[#222225] bg-[#F4F4F4] dark:bg-[#18181C]">
+                    <h3 className="font-mono text-xs tracking-widest uppercase text-[#777] dark:text-[#888] border-b border-[#E5E5E5] dark:border-[#28282E] pb-2">
+                      SPECIFICATIONS
+                    </h3>
 
-                  <div className="space-y-3 text-xs">
-                    <div>
-                      <span className="font-mono text-[10px] text-[#777] dark:text-[#888] uppercase block">
-                        CLIENT / COMMISSIONER
-                      </span>
-                      <span className="font-sans font-medium text-[#111] dark:text-white">
-                        {project.client}
-                      </span>
-                    </div>
-
-                    <div>
-                      <span className="font-mono text-[10px] text-[#777] dark:text-[#888] uppercase block flex items-center gap-1">
-                        <Calendar className="w-3 h-3" />
-                        YEAR OF EXECUTION
-                      </span>
-                      <span className="font-mono text-[#111] dark:text-white">
-                        {project.year}
-                      </span>
-                    </div>
-
-                    <div>
-                      <span className="font-mono text-[10px] text-[#777] dark:text-[#888] uppercase block flex items-center gap-1">
-                        <MapPin className="w-3 h-3" />
-                        LOCATION
-                      </span>
-                      <span className="font-sans text-[#111] dark:text-white">
-                        {project.location}
-                      </span>
-                    </div>
-
-                    <div>
-                      <span className="font-mono text-[10px] text-[#777] dark:text-[#888] uppercase block flex items-center gap-1 mb-1.5">
-                        <Wrench className="w-3 h-3" />
-                        TOOLS & MEDIUMS
-                      </span>
-                      <div className="flex flex-wrap gap-1.5">
-                        {project.tools.map((tool, idx) => (
-                          <span
-                            key={idx}
-                            className="px-2 py-0.5 text-[10px] font-mono bg-white dark:bg-[#222226] border border-[#E0E0E0] dark:border-[#333] rounded text-[#444] dark:text-[#bbb]"
-                          >
-                            {tool}
+                    <div className="space-y-3 text-xs">
+                      {project.client && (
+                        <div>
+                          <span className="font-mono text-[10px] text-[#777] dark:text-[#888] uppercase block">
+                            CLIENT / COMMISSIONER
                           </span>
-                        ))}
+                          <span className="font-sans font-medium text-[#111] dark:text-white">
+                            {project.client}
+                          </span>
+                        </div>
+                      )}
+
+                      {project.year && (
+                        <div>
+                          <span className="font-mono text-[10px] text-[#777] dark:text-[#888] uppercase block flex items-center gap-1">
+                            <Calendar className="w-3 h-3" />
+                            YEAR OF EXECUTION
+                          </span>
+                          <span className="font-mono text-[#111] dark:text-white">
+                            {project.year}
+                          </span>
+                        </div>
+                      )}
+
+                      {project.location && (
+                        <div>
+                          <span className="font-mono text-[10px] text-[#777] dark:text-[#888] uppercase block flex items-center gap-1">
+                            <MapPin className="w-3 h-3" />
+                            LOCATION
+                          </span>
+                          <span className="font-sans text-[#111] dark:text-white">
+                            {project.location}
+                          </span>
+                        </div>
+                      )}
+
+                      {project.tools && project.tools.length > 0 && (
+                        <div>
+                          <span className="font-mono text-[10px] text-[#777] dark:text-[#888] uppercase block flex items-center gap-1 mb-1.5">
+                            <Wrench className="w-3 h-3" />
+                            TOOLS & MEDIUMS
+                          </span>
+                          <div className="flex flex-wrap gap-1.5">
+                            {project.tools.map((tool, idx) => (
+                              <span
+                                key={idx}
+                                className="px-2 py-0.5 text-[10px] font-mono bg-white dark:bg-[#222226] border border-[#E0E0E0] dark:border-[#333] rounded text-[#444] dark:text-[#bbb]"
+                              >
+                                {tool}
+                              </span>
+                                                        ))}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Project Index Counter & Quick Nav */}
+                    <div className="pt-3 border-t border-[#E5E5E5] dark:border-[#28282E] flex items-center justify-between text-[11px] font-mono text-[#777] dark:text-[#888]">
+                      <span>WORK {currentIndex + 1} OF {allProjects.length}</span>
+                      <div className="flex items-center gap-2">
+                        <button onClick={handlePrev} className="hover:text-[#111] dark:hover:text-white">PREV</button>
+                        <span>/</span>
+                        <button onClick={handleNext} className="hover:text-[#111] dark:hover:text-white">NEXT</button>
                       </div>
                     </div>
-                  </div>
 
-                  {/* Project Index Counter & Quick Nav */}
-                  <div className="pt-3 border-t border-[#E5E5E5] dark:border-[#28282E] flex items-center justify-between text-[11px] font-mono text-[#777] dark:text-[#888]">
-                    <span>WORK {currentIndex + 1} OF {allProjects.length}</span>
-                    <div className="flex items-center gap-2">
-                      <button onClick={handlePrev} className="hover:text-[#111] dark:hover:text-white">PREV</button>
-                      <span>/</span>
-                      <button onClick={handleNext} className="hover:text-[#111] dark:hover:text-white">NEXT</button>
-                    </div>
                   </div>
-
-                </div>
+                )}
 
               </div>
 
