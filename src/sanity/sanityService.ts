@@ -19,7 +19,7 @@ const PROJECTS_QUERY = `*[_type == "project"] | order(_createdAt desc) {
   featured
 }`;
 
-// GROQ query to fetch single profile document with social links & lists from Sanity
+// GROQ query to fetch single profile document from Sanity
 const PROFILE_QUERY = `*[_type == "profile"][0] {
   name,
   role,
@@ -31,9 +31,6 @@ const PROFILE_QUERY = `*[_type == "profile"][0] {
   phone,
   studioAddress,
   instagram,
-  behance,
-  linkedin,
-  readcv,
   telegram,
   services,
   clients,
@@ -108,9 +105,9 @@ export async function fetchProfileData(): Promise<ProfileData> {
         phone: data.phone || '',
         studio: data.studioAddress || '',
         instagram: data.instagram || '',
-        behance: data.behance || '',
-        linkedin: data.linkedin || '',
-        readcv: data.readcv || '',
+        behance: '',
+        linkedin: '',
+        readcv: '',
         telegram: data.telegram || '',
       },
     };

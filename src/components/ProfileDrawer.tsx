@@ -44,9 +44,6 @@ export const ProfileDrawer: React.FC<ProfileDrawerProps> = ({ isOpen, onClose, p
 
   const socialLinks = [
     { label: 'INSTAGRAM', url: formatUrl(profile.contact.instagram, 'https://instagram.com/'), key: 'ig' },
-    { label: 'BEHANCE', url: formatUrl(profile.contact.behance, 'https://behance.net/'), key: 'be' },
-    { label: 'LINKEDIN', url: formatUrl(profile.contact.linkedin, 'https://linkedin.com/in/'), key: 'li' },
-    { label: 'READ.CV', url: formatUrl(profile.contact.readcv, 'https://read.cv/'), key: 'cv' },
     { label: 'TELEGRAM', url: formatUrl(profile.contact.telegram || '', 'https://t.me/'), key: 'tg', icon: Send },
   ].filter(link => Boolean(link.url));
 
@@ -148,7 +145,7 @@ export const ProfileDrawer: React.FC<ProfileDrawerProps> = ({ isOpen, onClose, p
                   </div>
                 )}
 
-                {/* Services List (Only rendered if filled in Sanity) */}
+                {/* Services List */}
                 {hasServices && (
                   <div className="space-y-3">
                     <h3 className="font-mono text-xs tracking-widest uppercase text-[#888] dark:text-[#777] border-b border-[#E5E5E5] dark:border-[#222225] pb-2 flex items-center gap-2">
@@ -166,7 +163,7 @@ export const ProfileDrawer: React.FC<ProfileDrawerProps> = ({ isOpen, onClose, p
                   </div>
                 )}
 
-                {/* Selected Clients (Only rendered if filled in Sanity) */}
+                {/* Selected Clients */}
                 {hasClients && (
                   <div className="space-y-3">
                     <h3 className="font-mono text-xs tracking-widest uppercase text-[#888] dark:text-[#777] border-b border-[#E5E5E5] dark:border-[#222225] pb-2">
@@ -185,7 +182,7 @@ export const ProfileDrawer: React.FC<ProfileDrawerProps> = ({ isOpen, onClose, p
                   </div>
                 )}
 
-                {/* Key Awards & Recognition (Only rendered if filled in Sanity) */}
+                {/* Key Awards & Recognition */}
                 {hasAwards && (
                   <div className="space-y-3">
                     <h3 className="font-mono text-xs tracking-widest uppercase text-[#888] dark:text-[#777] border-b border-[#E5E5E5] dark:border-[#222225] pb-2 flex items-center gap-2">
@@ -206,14 +203,14 @@ export const ProfileDrawer: React.FC<ProfileDrawerProps> = ({ isOpen, onClose, p
                   </div>
                 )}
 
-                {/* Contact & Social Links (Rendered dynamically based on Sanity fields) */}
+                {/* Contact & Social Links */}
                 {(profile.contact.email || hasSocials) && (
                   <div className="space-y-4 pt-4 border-t border-[#E5E5E5] dark:border-[#222225]">
                     <h3 className="font-mono text-xs tracking-widest uppercase text-[#888] dark:text-[#777]">
                       DIRECT INQUIRIES
                     </h3>
                     
-                    {/* Email row with Copy Button */}
+                    {/* Email row */}
                     {profile.contact.email && (
                       <div className="flex items-center justify-between p-3 border border-[#E5E5E5] dark:border-[#28282E] rounded-lg bg-white/50 dark:bg-[#17171A]">
                         <span className="font-mono text-xs text-[#222] dark:text-[#eee] truncate mr-2">
@@ -229,7 +226,7 @@ export const ProfileDrawer: React.FC<ProfileDrawerProps> = ({ isOpen, onClose, p
                       </div>
                     )}
 
-                    {/* Dynamic Social Links List (Hides any missing social link automatically) */}
+                    {/* Social Links List */}
                     {hasSocials && (
                       <div className="grid grid-cols-2 gap-2 text-xs font-mono">
                         {socialLinks.map((item) => (
