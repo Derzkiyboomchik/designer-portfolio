@@ -18,6 +18,7 @@ export const LightboxModal: React.FC<LightboxModalProps> = ({
 }) => {
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const [isZoomed, setIsZoomed] = useState(false);
+  const [touchStartX, setTouchStartX] = useState<number | null>(null);
 
   // Reset active image index when project changes
   useEffect(() => {
@@ -25,7 +26,40 @@ export const LightboxModal: React.FC<LightboxModalProps> = ({
     setIsZoomed(false);
   }, [project]);
 
-  // Handle Keyboard Navigation
+  const allImages = project ? [project.imageUrl, ...(project.secondaryImages || [])] : [];
+
+  const handleNextImage = () => {
+    if (allImages.length <= 1) return;
+    setActiveImageIndex((prev) => (prev + 1) % allImages.length);
+  };
+
+  const handlePrevImage = () => {
+    if (allImages.length <= 1) return;
+    setActiveImageIndex((prev) => (prev - 1 + allImages.length) % allImages.length);
+  };
+
+  // Touch Swipe Handlers for Mobile
+  const handleTouchStart = (e: React.TouchEvent) => {
+    setTouchStartX(e.touches[0].clientX);
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (touchStartX === null || allImages.length <= 1) return;
+    const touchEndX = e.changedTouches[0].clientX;
+    const diffX = touchStartX - touchEndX;
+
+    // Minimum swipe threshold of 40px
+    if (Math.abs(diffX) > 40) {
+      if (diffX > 0) {
+        handleNextImage(); // Swiped left -> Next Image
+      } else {
+        handlePrevImage(); // Swiped right -> Previous Image
+      }
+    }
+    setTouchStartX(null);
+  };
+
+  // Handle Keyboard Navigation (Arrow Keys switch images inside card)
   useEffect(() => {
     if (!project) return;
 
@@ -33,9 +67,9 @@ export const LightboxModal: React.FC<LightboxModalProps> = ({
       if (e.key === 'Escape') {
         onClose();
       } else if (e.key === 'ArrowRight') {
-        handleNext();
+        handleNextImage();
       } else if (e.key === 'ArrowLeft') {
-        handlePrev();
+        handlePrevImage();
       }
     };
 
@@ -46,23 +80,22 @@ export const LightboxModal: React.FC<LightboxModalProps> = ({
       window.removeEventListener('keydown', handleKeyDown);
       document.body.style.overflow = 'unset';
     };
-  }, [project, allProjects, onClose]);
+  }, [project, activeImageIndex, allImages.length, onClose]);
 
   if (!project) return null;
 
   const currentIndex = allProjects.findIndex(p => p.id === project.id);
 
-  const handleNext = () => {
+  const handleNextProject = () => {
     const nextIdx = (currentIndex + 1) % allProjects.length;
     onSelectProject(allProjects[nextIdx]);
   };
 
-  const handlePrev = () => {
+  const handlePrevProject = () => {
     const prevIdx = (currentIndex - 1 + allProjects.length) % allProjects.length;
     onSelectProject(allProjects[prevIdx]);
   };
 
-  const allImages = [project.imageUrl, ...(project.secondaryImages || [])];
   const currentImage = allImages[activeImageIndex] || project.imageUrl;
 
   const hasSpecs = Boolean(project.client || project.year || project.location || (project.tools && project.tools.length > 0));
@@ -91,23 +124,6 @@ export const LightboxModal: React.FC<LightboxModalProps> = ({
             <X className="w-5 h-5 group-hover:scale-110 transition-transform" />
           </button>
 
-          {/* Navigation Arrows */}
-          <button
-            onClick={handlePrev}
-            className="fixed left-3 sm:left-6 top-1/2 -translate-y-1/2 z-50 p-3 rounded-full bg-white/10 dark:bg-black/30 backdrop-blur-md text-white border border-white/15 hover:bg-white/30 transition-all hidden md:block"
-            aria-label="Previous project"
-          >
-            <ChevronLeft className="w-6 h-6" />
-          </button>
-
-          <button
-            onClick={handleNext}
-            className="fixed right-3 sm:right-6 top-1/2 -translate-y-1/2 z-50 p-3 rounded-full bg-white/10 dark:bg-black/30 backdrop-blur-md text-white border border-white/15 hover:bg-white/30 transition-all hidden md:block"
-            aria-label="Next project"
-          >
-            <ChevronRight className="w-6 h-6" />
-          </button>
-
           {/* Lightbox Modal Content Box (70-80% Viewport Width) */}
           <motion.div
             initial={{ opacity: 0, scale: 0.92, y: 15 }}
@@ -120,8 +136,12 @@ export const LightboxModal: React.FC<LightboxModalProps> = ({
             {/* Scrollable Container for Image + Content */}
             <div className="overflow-y-auto max-h-[92vh] p-4 sm:p-8 space-y-6">
               
-              {/* Top Image Viewer Section */}
-              <div className="relative group bg-[#EFEFEF] dark:bg-[#0A0A0B] rounded-lg overflow-hidden flex items-center justify-center min-h-[300px] max-h-[65vh]">
+              {/* Top Image Viewer Section with Touch Swipe & Desktop Arrows */}
+              <div 
+                onTouchStart={handleTouchStart}
+                onTouchEnd={handleTouchEnd}
+                className="relative group bg-[#EFEFEF] dark:bg-[#0A0A0B] rounded-lg overflow-hidden flex items-center justify-center min-h-[300px] max-h-[65vh] select-none"
+              >
                 <img
                   src={currentImage}
                   alt={project.title}
@@ -132,7 +152,7 @@ export const LightboxModal: React.FC<LightboxModalProps> = ({
                 />
 
                 {/* Aspect Ratio Badge & Zoom Toggle */}
-                <div className="absolute top-4 left-4 flex items-center gap-2">
+                <div className="absolute top-4 left-4 flex items-center gap-2 z-10">
                   {project.aspectRatioLabel && (
                     <span className="px-2.5 py-1 text-[10px] font-mono tracking-widest uppercase bg-black/40 text-white backdrop-blur-md rounded-full border border-white/20">
                       {project.aspectRatioLabel}
@@ -147,17 +167,38 @@ export const LightboxModal: React.FC<LightboxModalProps> = ({
                   </button>
                 </div>
 
-                {/* Multiple Images Gallery Switcher */}
+                {/* Desktop Side Arrows for Switching Images Inside Card */}
                 {allImages.length > 1 && (
-                  <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-2 bg-black/50 backdrop-blur-md p-1.5 rounded-full border border-white/20">
+                  <>
+                    <button
+                      onClick={handlePrevImage}
+                      className="absolute left-3 top-1/2 -translate-y-1/2 z-20 p-2.5 rounded-full bg-black/50 hover:bg-black/80 text-white backdrop-blur-md border border-white/20 transition-all opacity-80 hover:opacity-100 hidden sm:flex items-center justify-center shadow-lg"
+                      aria-label="Previous image"
+                    >
+                      <ChevronLeft className="w-5 h-5" />
+                    </button>
+
+                    <button
+                      onClick={handleNextImage}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 z-20 p-2.5 rounded-full bg-black/50 hover:bg-black/80 text-white backdrop-blur-md border border-white/20 transition-all opacity-80 hover:opacity-100 hidden sm:flex items-center justify-center shadow-lg"
+                      aria-label="Next image"
+                    >
+                      <ChevronRight className="w-5 h-5" />
+                    </button>
+                  </>
+                )}
+
+                {/* Image Dots Indicator (Shows active photo 1/N) */}
+                {allImages.length > 1 && (
+                  <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-2 bg-black/50 backdrop-blur-md p-1.5 rounded-full border border-white/20 z-10">
                     {allImages.map((_, idx) => (
                       <button
                         key={idx}
                         onClick={() => setActiveImageIndex(idx)}
-                        className={`w-3 h-3 rounded-full transition-all ${
-                          activeImageIndex === idx ? 'bg-white scale-110' : 'bg-white/40 hover:bg-white/70'
+                        className={`w-2.5 h-2.5 rounded-full transition-all ${
+                          activeImageIndex === idx ? 'bg-white scale-125' : 'bg-white/40 hover:bg-white/70'
                         }`}
-                        aria-label={`View thumbnail ${idx + 1}`}
+                        aria-label={`View photo ${idx + 1}`}
                       />
                     ))}
                   </div>
@@ -260,7 +301,7 @@ export const LightboxModal: React.FC<LightboxModalProps> = ({
                               >
                                 {tool}
                               </span>
-                                                        ))}
+                            ))}
                           </div>
                         </div>
                       )}
@@ -270,9 +311,9 @@ export const LightboxModal: React.FC<LightboxModalProps> = ({
                     <div className="pt-3 border-t border-[#E5E5E5] dark:border-[#28282E] flex items-center justify-between text-[11px] font-mono text-[#777] dark:text-[#888]">
                       <span>WORK {currentIndex + 1} OF {allProjects.length}</span>
                       <div className="flex items-center gap-2">
-                        <button onClick={handlePrev} className="hover:text-[#111] dark:hover:text-white">PREV</button>
+                        <button onClick={handlePrevProject} className="hover:text-[#111] dark:hover:text-white">PREV</button>
                         <span>/</span>
-                        <button onClick={handleNext} className="hover:text-[#111] dark:hover:text-white">NEXT</button>
+                        <button onClick={handleNextProject} className="hover:text-[#111] dark:hover:text-white">NEXT</button>
                       </div>
                     </div>
 
