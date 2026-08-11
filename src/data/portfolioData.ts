@@ -34,6 +34,7 @@ export interface ProfileData {
     behance: string;
     linkedin: string;
     readcv: string;
+    telegram?: string;
   };
 }
 

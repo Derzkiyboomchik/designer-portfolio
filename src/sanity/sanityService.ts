@@ -19,7 +19,7 @@ const PROJECTS_QUERY = `*[_type == "project"] | order(_createdAt desc) {
   featured
 }`;
 
-// GROQ query to fetch single profile document from Sanity
+// GROQ query to fetch single profile document with social links & lists from Sanity
 const PROFILE_QUERY = `*[_type == "profile"][0] {
   name,
   role,
@@ -27,7 +27,17 @@ const PROFILE_QUERY = `*[_type == "profile"][0] {
   avatar,
   bio,
   manifesto,
-  email
+  email,
+  phone,
+  studioAddress,
+  instagram,
+  behance,
+  linkedin,
+  readcv,
+  telegram,
+  services,
+  clients,
+  awards
 }`;
 
 export async function fetchPortfolioProjects(): Promise<Project[]> {
@@ -84,9 +94,24 @@ export async function fetchProfileData(): Promise<ProfileData> {
       avatarUrl: data.avatar ? urlFor(data.avatar).url() : PROFILE_DATA.avatarUrl,
       bio: data.bio || PROFILE_DATA.bio,
       manifesto: data.manifesto || PROFILE_DATA.manifesto,
+      services: Array.isArray(data.services) && data.services.length > 0 ? data.services : [],
+      clients: Array.isArray(data.clients) && data.clients.length > 0 ? data.clients : [],
+      awards: Array.isArray(data.awards) && data.awards.length > 0 
+        ? data.awards.map((a: any) => ({
+            year: a.year || '',
+            title: a.title || '',
+            organization: a.organization || '',
+          })) 
+        : [],
       contact: {
-        ...PROFILE_DATA.contact,
         email: data.email || PROFILE_DATA.contact.email,
+        phone: data.phone || '',
+        studio: data.studioAddress || '',
+        instagram: data.instagram || '',
+        behance: data.behance || '',
+        linkedin: data.linkedin || '',
+        readcv: data.readcv || '',
+        telegram: data.telegram || '',
       },
     };
   } catch (error) {

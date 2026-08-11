@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { PROFILE_DATA, type ProfileData } from '../data/portfolioData';
-import { X, Copy, Check, ArrowUpRight, Award, Layers } from 'lucide-react';
+import { X, Copy, Check, ArrowUpRight, Award, Layers, Send } from 'lucide-react';
 
 interface ProfileDrawerProps {
   isOpen: boolean;
@@ -28,10 +28,32 @@ export const ProfileDrawer: React.FC<ProfileDrawerProps> = ({ isOpen, onClose, p
   }, [isOpen, onClose]);
 
   const handleCopyEmail = () => {
+    if (!profile.contact.email) return;
     navigator.clipboard.writeText(profile.contact.email);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
+
+  // Helper to format social URLs
+  const formatUrl = (input: string, prefix: string) => {
+    if (!input) return '';
+    if (input.startsWith('http://') || input.startsWith('https://')) return input;
+    if (input.startsWith('@')) return `${prefix}${input.slice(1)}`;
+    return `https://${input}`;
+  };
+
+  const socialLinks = [
+    { label: 'INSTAGRAM', url: formatUrl(profile.contact.instagram, 'https://instagram.com/'), key: 'ig' },
+    { label: 'BEHANCE', url: formatUrl(profile.contact.behance, 'https://behance.net/'), key: 'be' },
+    { label: 'LINKEDIN', url: formatUrl(profile.contact.linkedin, 'https://linkedin.com/in/'), key: 'li' },
+    { label: 'READ.CV', url: formatUrl(profile.contact.readcv, 'https://read.cv/'), key: 'cv' },
+    { label: 'TELEGRAM', url: formatUrl(profile.contact.telegram || '', 'https://t.me/'), key: 'tg', icon: Send },
+  ].filter(link => Boolean(link.url));
+
+  const hasServices = Array.isArray(profile.services) && profile.services.length > 0;
+  const hasClients = Array.isArray(profile.clients) && profile.clients.length > 0;
+  const hasAwards = Array.isArray(profile.awards) && profile.awards.length > 0;
+  const hasSocials = socialLinks.length > 0;
 
   return (
     <AnimatePresence>
@@ -81,157 +103,159 @@ export const ProfileDrawer: React.FC<ProfileDrawerProps> = ({ isOpen, onClose, p
                 
                 {/* Avatar & Title Header */}
                 <div className="flex items-center gap-5">
-                  <img
-                    src={profile.avatarUrl}
-                    alt={profile.name}
-                    className="w-20 h-20 rounded-full object-cover border border-[#111]/20 dark:border-white/30 p-0.5"
-                  />
+                  {profile.avatarUrl && (
+                    <img
+                      src={profile.avatarUrl}
+                      alt={profile.name}
+                      className="w-20 h-20 rounded-full object-cover border border-[#111]/20 dark:border-white/30 p-0.5"
+                    />
+                  )}
                   <div>
-                    <h2 className="font-serif text-2xl font-normal tracking-tight text-[#111] dark:text-white">
-                      {profile.name}
-                    </h2>
-                    <p className="font-mono text-xs text-[#666] dark:text-[#999] tracking-wider uppercase mt-0.5">
-                      {profile.role}
-                    </p>
-                    <p className="font-mono text-[11px] text-[#888] tracking-widest uppercase mt-1">
-                      {profile.location}
-                    </p>
+                    {profile.name && (
+                      <h2 className="font-serif text-2xl font-normal tracking-tight text-[#111] dark:text-white">
+                        {profile.name}
+                      </h2>
+                    )}
+                    {profile.role && (
+                      <p className="font-mono text-xs text-[#666] dark:text-[#999] tracking-wider uppercase mt-0.5">
+                        {profile.role}
+                      </p>
+                    )}
+                    {profile.location && (
+                      <p className="font-mono text-[11px] text-[#888] tracking-widest uppercase mt-1">
+                        {profile.location}
+                      </p>
+                    )}
                   </div>
                 </div>
 
                 {/* Detailed Bio & Manifesto */}
-                <div className="space-y-3">
-                  <h3 className="font-mono text-xs tracking-widest uppercase text-[#888] dark:text-[#777] border-b border-[#E5E5E5] dark:border-[#222225] pb-2">
-                    BIOGRAPHY & PRACTICE
-                  </h3>
-                  <p className="font-sans text-sm font-light text-[#333] dark:text-[#ccc] leading-relaxed">
-                    {profile.bio}
-                  </p>
-                  <blockquote className="pl-3 border-l-2 border-[#111] dark:border-white text-xs font-serif italic text-[#555] dark:text-[#aaa] py-1">
-                    "{profile.manifesto}"
-                  </blockquote>
-                </div>
-
-                {/* Services List */}
-                <div className="space-y-3">
-                  <h3 className="font-mono text-xs tracking-widest uppercase text-[#888] dark:text-[#777] border-b border-[#E5E5E5] dark:border-[#222225] pb-2 flex items-center gap-2">
-                    <Layers className="w-3.5 h-3.5" />
-                    SERVICES & EXPERTISE
-                  </h3>
-                  <ul className="space-y-2">
-                    {profile.services.map((service, idx) => (
-                      <li key={idx} className="font-sans text-xs text-[#333] dark:text-[#ddd] flex items-center gap-2">
-                        <span className="text-xs text-[#888] font-mono">0{idx + 1}.</span>
-                        {service}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-
-                {/* Selected Clients */}
-                <div className="space-y-3">
-                  <h3 className="font-mono text-xs tracking-widest uppercase text-[#888] dark:text-[#777] border-b border-[#E5E5E5] dark:border-[#222225] pb-2">
-                    SELECT CLIENTELE
-                  </h3>
-                  <div className="flex flex-wrap gap-2">
-                    {profile.clients.map((client, idx) => (
-                      <span
-                        key={idx}
-                        className="px-2.5 py-1 text-[11px] font-mono border border-[#E0E0E0] dark:border-[#2A2A30] rounded text-[#444] dark:text-[#bbb]"
-                      >
-                        {client}
-                      </span>
-                    ))}
+                {(profile.bio || profile.manifesto) && (
+                  <div className="space-y-3">
+                    <h3 className="font-mono text-xs tracking-widest uppercase text-[#888] dark:text-[#777] border-b border-[#E5E5E5] dark:border-[#222225] pb-2">
+                      BIOGRAPHY & PRACTICE
+                    </h3>
+                    {profile.bio && (
+                      <p className="font-sans text-sm font-light text-[#333] dark:text-[#ccc] leading-relaxed">
+                        {profile.bio}
+                      </p>
+                    )}
+                    {profile.manifesto && (
+                      <blockquote className="pl-3 border-l-2 border-[#111] dark:border-white text-xs font-serif italic text-[#555] dark:text-[#aaa] py-1">
+                        "{profile.manifesto}"
+                      </blockquote>
+                    )}
                   </div>
-                </div>
+                )}
 
-                {/* Key Awards & Recognition */}
-                <div className="space-y-3">
-                  <h3 className="font-mono text-xs tracking-widest uppercase text-[#888] dark:text-[#777] border-b border-[#E5E5E5] dark:border-[#222225] pb-2 flex items-center gap-2">
-                    <Award className="w-3.5 h-3.5" />
-                    RECOGNITION
-                  </h3>
-                  <div className="space-y-2.5">
-                    {profile.awards.map((award, idx) => (
-                      <div key={idx} className="text-xs flex justify-between gap-4">
-                        <div>
-                          <p className="font-sans font-medium text-[#222] dark:text-[#eee]">{award.title}</p>
-                          <p className="font-mono text-[10px] text-[#777] dark:text-[#888]">{award.organization}</p>
+                {/* Services List (Only rendered if filled in Sanity) */}
+                {hasServices && (
+                  <div className="space-y-3">
+                    <h3 className="font-mono text-xs tracking-widest uppercase text-[#888] dark:text-[#777] border-b border-[#E5E5E5] dark:border-[#222225] pb-2 flex items-center gap-2">
+                      <Layers className="w-3.5 h-3.5" />
+                      SERVICES & EXPERTISE
+                    </h3>
+                    <ul className="space-y-2">
+                      {profile.services.map((service, idx) => (
+                        <li key={idx} className="font-sans text-xs text-[#333] dark:text-[#ddd] flex items-center gap-2">
+                          <span className="text-xs text-[#888] font-mono">0{idx + 1}.</span>
+                          {service}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
+
+                {/* Selected Clients (Only rendered if filled in Sanity) */}
+                {hasClients && (
+                  <div className="space-y-3">
+                    <h3 className="font-mono text-xs tracking-widest uppercase text-[#888] dark:text-[#777] border-b border-[#E5E5E5] dark:border-[#222225] pb-2">
+                      SELECT CLIENTELE
+                    </h3>
+                    <div className="flex flex-wrap gap-2">
+                      {profile.clients.map((client, idx) => (
+                        <span
+                          key={idx}
+                          className="px-2.5 py-1 text-[11px] font-mono border border-[#E0E0E0] dark:border-[#2A2A30] rounded text-[#444] dark:text-[#bbb]"
+                        >
+                          {client}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Key Awards & Recognition (Only rendered if filled in Sanity) */}
+                {hasAwards && (
+                  <div className="space-y-3">
+                    <h3 className="font-mono text-xs tracking-widest uppercase text-[#888] dark:text-[#777] border-b border-[#E5E5E5] dark:border-[#222225] pb-2 flex items-center gap-2">
+                      <Award className="w-3.5 h-3.5" />
+                      RECOGNITION
+                    </h3>
+                    <div className="space-y-2.5">
+                      {profile.awards.map((award, idx) => (
+                        <div key={idx} className="text-xs flex justify-between gap-4">
+                          <div>
+                            <p className="font-sans font-medium text-[#222] dark:text-[#eee]">{award.title}</p>
+                            <p className="font-mono text-[10px] text-[#777] dark:text-[#888]">{award.organization}</p>
+                          </div>
+                          <span className="font-mono text-[11px] text-[#888] shrink-0">{award.year}</span>
                         </div>
-                        <span className="font-mono text-[11px] text-[#888] shrink-0">{award.year}</span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Contact & Social Links (Rendered dynamically based on Sanity fields) */}
+                {(profile.contact.email || hasSocials) && (
+                  <div className="space-y-4 pt-4 border-t border-[#E5E5E5] dark:border-[#222225]">
+                    <h3 className="font-mono text-xs tracking-widest uppercase text-[#888] dark:text-[#777]">
+                      DIRECT INQUIRIES
+                    </h3>
+                    
+                    {/* Email row with Copy Button */}
+                    {profile.contact.email && (
+                      <div className="flex items-center justify-between p-3 border border-[#E5E5E5] dark:border-[#28282E] rounded-lg bg-white/50 dark:bg-[#17171A]">
+                        <span className="font-mono text-xs text-[#222] dark:text-[#eee] truncate mr-2">
+                          {profile.contact.email}
+                        </span>
+                        <button
+                          onClick={handleCopyEmail}
+                          className="p-1.5 rounded hover:bg-[#EFEFEF] dark:hover:bg-[#25252A] text-[#666] dark:text-[#aaa] transition-colors shrink-0"
+                          title="Copy email to clipboard"
+                        >
+                          {copied ? <Check className="w-4 h-4 text-emerald-500" /> : <Copy className="w-4 h-4" />}
+                        </button>
                       </div>
-                    ))}
-                  </div>
-                </div>
+                    )}
 
-                {/* Contact & Social Links */}
-                <div className="space-y-4 pt-4 border-t border-[#E5E5E5] dark:border-[#222225]">
-                  <h3 className="font-mono text-xs tracking-widest uppercase text-[#888] dark:text-[#777]">
-                    DIRECT INQUIRIES
-                  </h3>
-                  
-                  {/* Email row with Copy Button */}
-                  <div className="flex items-center justify-between p-3 border border-[#E5E5E5] dark:border-[#28282E] rounded-lg bg-white/50 dark:bg-[#17171A]">
-                    <span className="font-mono text-xs text-[#222] dark:text-[#eee] truncate mr-2">
-                      {profile.contact.email}
-                    </span>
-                    <button
-                      onClick={handleCopyEmail}
-                      className="p-1.5 rounded hover:bg-[#EFEFEF] dark:hover:bg-[#25252A] text-[#666] dark:text-[#aaa] transition-colors shrink-0"
-                      title="Copy email to clipboard"
-                    >
-                      {copied ? <Check className="w-4 h-4 text-emerald-500" /> : <Copy className="w-4 h-4" />}
-                    </button>
-                  </div>
+                    {/* Dynamic Social Links List (Hides any missing social link automatically) */}
+                    {hasSocials && (
+                      <div className="grid grid-cols-2 gap-2 text-xs font-mono">
+                        {socialLinks.map((item) => (
+                          <a
+                            key={item.key}
+                            href={item.url}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="p-2.5 border border-[#E5E5E5] dark:border-[#28282E] rounded flex items-center justify-between text-[#444] dark:text-[#ccc] hover:border-[#111] dark:hover:border-white transition-colors"
+                          >
+                            {item.label}
+                            <ArrowUpRight className="w-3 h-3 text-[#888]" />
+                          </a>
+                        ))}
+                      </div>
+                    )}
 
-                  {/* Social Links List */}
-                  <div className="grid grid-cols-2 gap-2 text-xs font-mono">
-                    <a
-                      href={`https://${profile.contact.instagram}`}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="p-2.5 border border-[#E5E5E5] dark:border-[#28282E] rounded flex items-center justify-between text-[#444] dark:text-[#ccc] hover:border-[#111] dark:hover:border-white transition-colors"
-                    >
-                      INSTAGRAM
-                      <ArrowUpRight className="w-3 h-3 text-[#888]" />
-                    </a>
-                    <a
-                      href={`https://${profile.contact.behance}`}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="p-2.5 border border-[#E5E5E5] dark:border-[#28282E] rounded flex items-center justify-between text-[#444] dark:text-[#ccc] hover:border-[#111] dark:hover:border-white transition-colors"
-                    >
-                      BEHANCE
-                      <ArrowUpRight className="w-3 h-3 text-[#888]" />
-                    </a>
-                    <a
-                      href={`https://${profile.contact.linkedin}`}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="p-2.5 border border-[#E5E5E5] dark:border-[#28282E] rounded flex items-center justify-between text-[#444] dark:text-[#ccc] hover:border-[#111] dark:hover:border-white transition-colors"
-                    >
-                      LINKEDIN
-                      <ArrowUpRight className="w-3 h-3 text-[#888]" />
-                    </a>
-                    <a
-                      href={`https://${profile.contact.readcv}`}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="p-2.5 border border-[#E5E5E5] dark:border-[#28282E] rounded flex items-center justify-between text-[#444] dark:text-[#ccc] hover:border-[#111] dark:hover:border-white transition-colors"
-                    >
-                      READ.CV
-                      <ArrowUpRight className="w-3 h-3 text-[#888]" />
-                    </a>
                   </div>
-
-                </div>
+                )}
 
               </div>
 
               {/* Drawer Footer */}
               <div className="p-6 border-t border-[#E5E5E5] dark:border-[#222225] bg-[#FAFAFA]/90 dark:bg-[#121214]/90 text-[10px] font-mono text-[#888] dark:text-[#777] flex items-center justify-between">
-                <span>© {new Date().getFullYear()} STUDIO KRYLOVA</span>
-                <span>{profile.location.toUpperCase()}</span>
+                <span>© {new Date().getFullYear()} {profile.name ? `STUDIO ${profile.name.split(' ')[0]}` : 'PORTFOLIO'}</span>
+                {profile.location && <span>{profile.location.toUpperCase()}</span>}
               </div>
 
             </motion.div>
