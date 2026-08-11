@@ -210,17 +210,13 @@ export const LightboxModal: React.FC<LightboxModalProps> = ({
                 
                 {/* Main Text Details (Left 2 Columns) */}
                 <div className="lg:col-span-2 space-y-4">
-                  <div className="flex flex-wrap items-center gap-3">
-                    {project.category && (
+                  {project.category && (
+                    <div className="flex flex-wrap items-center gap-3">
                       <span className="text-xs font-mono tracking-widest uppercase text-blue-600 dark:text-blue-400">
                         {project.category}
                       </span>
-                    )}
-                    {project.category && <span className="text-[#CCC] dark:text-[#333]">|</span>}
-                    <span className="text-xs font-mono text-[#777] dark:text-[#888]">
-                      PROJECT N° {project.id ? project.id.replace('project-', '0') : '01'}
-                    </span>
-                  </div>
+                    </div>
+                  )}
 
                   {/* Title in Elegant Serif Font */}
                   {project.title && (
