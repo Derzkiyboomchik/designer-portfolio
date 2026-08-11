@@ -1,5 +1,5 @@
 import { sanityClient, urlFor, SANITY_PROJECT_ID } from './client';
-import { PROFILE_DATA, type Project, type ProfileData } from '../data/portfolioData';
+import { PROFILE_DATA, PORTFOLIO_PROJECTS, type Project, type ProfileData } from '../data/portfolioData';
 
 // GROQ query to fetch all portfolio projects from Sanity
 const PROJECTS_QUERY = `*[_type == "project"] | order(_createdAt desc) {
@@ -39,15 +39,15 @@ const PROFILE_QUERY = `*[_type == "profile"][0] {
 
 export async function fetchPortfolioProjects(): Promise<Project[]> {
   if (!SANITY_PROJECT_ID) {
-    return [];
+    return PORTFOLIO_PROJECTS;
   }
 
   try {
     const sanityData = await sanityClient.fetch(PROJECTS_QUERY);
     
     if (!sanityData || sanityData.length === 0) {
-      console.log('[Sanity] Projects query returned empty array (0 documents).');
-      return [];
+      console.log('[Sanity] Projects query returned 0 documents. Using local portfolio fallback.');
+      return PORTFOLIO_PROJECTS;
     }
 
     return sanityData.map((item: any) => ({
@@ -69,8 +69,8 @@ export async function fetchPortfolioProjects(): Promise<Project[]> {
       featured: Boolean(item.featured),
     }));
   } catch (error) {
-    console.error('[Sanity] Error fetching projects from Sanity API:', error);
-    return [];
+    console.error('[Sanity] Network error or ISP block fetching projects. Using PORTFOLIO_PROJECTS fallback:', error);
+    return PORTFOLIO_PROJECTS;
   }
 }
 
@@ -91,20 +91,20 @@ export async function fetchProfileData(): Promise<ProfileData> {
       avatarUrl: data.avatar ? urlFor(data.avatar).url() : PROFILE_DATA.avatarUrl,
       bio: data.bio || PROFILE_DATA.bio,
       manifesto: data.manifesto || PROFILE_DATA.manifesto,
-      services: Array.isArray(data.services) && data.services.length > 0 ? data.services : [],
-      clients: Array.isArray(data.clients) && data.clients.length > 0 ? data.clients : [],
+      services: Array.isArray(data.services) && data.services.length > 0 ? data.services : PROFILE_DATA.services,
+      clients: Array.isArray(data.clients) && data.clients.length > 0 ? data.clients : PROFILE_DATA.clients,
       awards: Array.isArray(data.awards) && data.awards.length > 0 
         ? data.awards.map((a: any) => ({
             year: a.year || '',
             title: a.title || '',
             organization: a.organization || '',
           })) 
-        : [],
+        : PROFILE_DATA.awards,
       contact: {
         email: data.email || PROFILE_DATA.contact.email,
-        phone: data.phone || '',
-        studio: data.studioAddress || '',
-        instagram: data.instagram || '',
+        phone: data.phone || PROFILE_DATA.contact.phone,
+        studio: data.studioAddress || PROFILE_DATA.contact.studio,
+        instagram: data.instagram || PROFILE_DATA.contact.instagram,
         behance: '',
         linkedin: '',
         readcv: '',
