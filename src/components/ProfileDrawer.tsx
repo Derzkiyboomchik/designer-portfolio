@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { PROFILE_DATA, type ProfileData } from '../data/portfolioData';
-import { generateContractPDF } from '../utils/generateContractPDF';
-import { X, Download, Copy, Check, ArrowUpRight, Award, Layers, Sparkles } from 'lucide-react';
+import { X, Copy, Check, ArrowUpRight, Award, Layers } from 'lucide-react';
 
 interface ProfileDrawerProps {
   isOpen: boolean;
@@ -12,7 +11,6 @@ interface ProfileDrawerProps {
 
 export const ProfileDrawer: React.FC<ProfileDrawerProps> = ({ isOpen, onClose, profile = PROFILE_DATA }) => {
   const [copied, setCopied] = useState(false);
-  const [isGenerating, setIsGenerating] = useState(false);
 
   // Close on Escape key
   useEffect(() => {
@@ -33,14 +31,6 @@ export const ProfileDrawer: React.FC<ProfileDrawerProps> = ({ isOpen, onClose, p
     navigator.clipboard.writeText(profile.contact.email);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
-  };
-
-  const handleDownloadPDF = () => {
-    setIsGenerating(true);
-    setTimeout(() => {
-      generateContractPDF();
-      setIsGenerating(false);
-    }, 400);
   };
 
   return (
@@ -107,32 +97,6 @@ export const ProfileDrawer: React.FC<ProfileDrawerProps> = ({ isOpen, onClose, p
                       {profile.location}
                     </p>
                   </div>
-                </div>
-
-                {/* Contract Download Action Card */}
-                <div className="p-5 border border-[#111111]/15 dark:border-white/20 rounded-xl bg-[#F0F0F0] dark:bg-[#1A1A1E] space-y-3">
-                  <div className="flex items-center justify-between">
-                    <span className="font-mono text-xs tracking-widest uppercase font-semibold text-[#111] dark:text-white flex items-center gap-2">
-                      <Sparkles className="w-3.5 h-3.5 text-blue-600 dark:text-blue-400" />
-                      Client Agreement 2025/26
-                    </span>
-                    <span className="text-[10px] font-mono text-[#777] dark:text-[#999]">
-                      PDF • 140 KB
-                    </span>
-                  </div>
-                  
-                  <p className="font-sans text-xs text-[#555] dark:text-[#aaa] leading-relaxed">
-                    Official Swiss Design Freelance Master Services Contract detailing terms, scope boundaries, licensing rights, and hourly rates.
-                  </p>
-
-                  <button
-                    onClick={handleDownloadPDF}
-                    disabled={isGenerating}
-                    className="w-full mt-2 py-3 px-4 bg-[#111111] dark:bg-white text-white dark:text-[#111111] font-mono text-xs tracking-widest uppercase rounded-lg hover:opacity-90 transition-all flex items-center justify-center gap-2.5 shadow-md active:scale-[0.99]"
-                  >
-                    <Download className="w-4 h-4" />
-                    {isGenerating ? 'GENERATING CONTRACT...' : 'DOWNLOAD CONTRACT (PDF)'}
-                  </button>
                 </div>
 
                 {/* Detailed Bio & Manifesto */}
@@ -266,7 +230,7 @@ export const ProfileDrawer: React.FC<ProfileDrawerProps> = ({ isOpen, onClose, p
 
               {/* Drawer Footer */}
               <div className="p-6 border-t border-[#E5E5E5] dark:border-[#222225] bg-[#FAFAFA]/90 dark:bg-[#121214]/90 text-[10px] font-mono text-[#888] dark:text-[#777] flex items-center justify-between">
-                <span>© {new Date().getFullYear()} STUDIO VANCE</span>
+                <span>© {new Date().getFullYear()} STUDIO KRYLOVA</span>
                 <span>{profile.location.toUpperCase()}</span>
               </div>
 

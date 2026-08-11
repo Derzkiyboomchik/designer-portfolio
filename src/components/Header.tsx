@@ -60,7 +60,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenDrawer, profile = PROFILE_
                 onClick={onOpenDrawer}
                 className="group flex items-center gap-1.5 text-[#111] dark:text-white underline underline-offset-4 hover:opacity-70 transition-opacity uppercase font-medium"
               >
-                Profile & Contract PDF
+                Designer Profile
                 <ArrowUpRight className="w-3.5 h-3.5 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
               </button>
 
