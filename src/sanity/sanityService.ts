@@ -1,5 +1,5 @@
 import { sanityClient, urlFor, SANITY_PROJECT_ID } from './client';
-import { PROFILE_DATA, PORTFOLIO_PROJECTS, type Project, type ProfileData } from '../data/portfolioData';
+import { PROFILE_DATA, type Project, type ProfileData } from '../data/portfolioData';
 
 // GROQ query to fetch all portfolio projects from Sanity
 const PROJECTS_QUERY = `*[_type == "project"] | order(_createdAt desc) {
@@ -39,26 +39,26 @@ const PROFILE_QUERY = `*[_type == "profile"][0] {
 
 export async function fetchPortfolioProjects(): Promise<Project[]> {
   if (!SANITY_PROJECT_ID) {
-    return PORTFOLIO_PROJECTS;
+    return [];
   }
 
   try {
     const sanityData = await sanityClient.fetch(PROJECTS_QUERY);
     
     if (!sanityData || sanityData.length === 0) {
-      console.log('[Sanity] Projects query returned 0 documents. Using local portfolio fallback.');
-      return PORTFOLIO_PROJECTS;
+      console.log('[Sanity] Projects query returned 0 documents.');
+      return [];
     }
 
     return sanityData.map((item: any) => ({
       id: item._id || item.id,
-      title: item.title,
+      title: item.title || '',
       subtitle: item.subtitle || '',
-      category: item.category || 'Editorial',
-      year: item.year || new Date().getFullYear().toString(),
+      category: item.category || '',
+      year: item.year || '',
       aspectRatio: item.aspectRatio || '4/3',
       aspectRatioLabel: item.aspectRatioLabel || '4:3 Landscape',
-      imageUrl: item.mainImage ? urlFor(item.mainImage).url() : './projects/project-1.jpg',
+      imageUrl: item.mainImage ? urlFor(item.mainImage).url() : '',
       secondaryImages: Array.isArray(item.secondaryImages)
         ? item.secondaryImages.map((img: any) => urlFor(img).url())
         : [],
@@ -69,8 +69,8 @@ export async function fetchPortfolioProjects(): Promise<Project[]> {
       featured: Boolean(item.featured),
     }));
   } catch (error) {
-    console.error('[Sanity] Network error or ISP block fetching projects. Using PORTFOLIO_PROJECTS fallback:', error);
-    return PORTFOLIO_PROJECTS;
+    console.error('[Sanity] Error fetching projects from Sanity API:', error);
+    return [];
   }
 }
 
@@ -83,28 +83,29 @@ export async function fetchProfileData(): Promise<ProfileData> {
     const data = await sanityClient.fetch(PROFILE_QUERY);
     if (!data) return PROFILE_DATA;
 
+    // Direct 1-to-1 mapping from Sanity Studio (Zero hardcoded fallbacks!)
     return {
-      ...PROFILE_DATA,
-      name: data.name || PROFILE_DATA.name,
-      role: data.role || PROFILE_DATA.role,
-      location: data.location || PROFILE_DATA.location,
-      avatarUrl: data.avatar ? urlFor(data.avatar).url() : PROFILE_DATA.avatarUrl,
-      bio: data.bio || PROFILE_DATA.bio,
-      manifesto: data.manifesto || PROFILE_DATA.manifesto,
-      services: Array.isArray(data.services) && data.services.length > 0 ? data.services : PROFILE_DATA.services,
-      clients: Array.isArray(data.clients) && data.clients.length > 0 ? data.clients : PROFILE_DATA.clients,
-      awards: Array.isArray(data.awards) && data.awards.length > 0 
+      name: data.name || '',
+      role: data.role || '',
+      location: data.location || '',
+      avatarUrl: data.avatar ? urlFor(data.avatar).url() : '',
+      bio: data.bio || '',
+      manifesto: data.manifesto || '',
+      stats: [],
+      services: Array.isArray(data.services) ? data.services : [],
+      clients: Array.isArray(data.clients) ? data.clients : [],
+      awards: Array.isArray(data.awards) 
         ? data.awards.map((a: any) => ({
             year: a.year || '',
             title: a.title || '',
             organization: a.organization || '',
           })) 
-        : PROFILE_DATA.awards,
+        : [],
       contact: {
-        email: data.email || PROFILE_DATA.contact.email,
-        phone: data.phone || PROFILE_DATA.contact.phone,
-        studio: data.studioAddress || PROFILE_DATA.contact.studio,
-        instagram: data.instagram || PROFILE_DATA.contact.instagram,
+        email: data.email || '',
+        phone: data.phone || '',
+        studio: data.studioAddress || '',
+        instagram: data.instagram || '',
         behance: '',
         linkedin: '',
         readcv: '',
