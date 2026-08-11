@@ -99,7 +99,7 @@ export function App() {
       </main>
 
       {/* Clean Minimal Footer */}
-      <Footer />
+      <Footer profile={profile} />
 
       {/* Slide-out Sidebar Drawer */}
       <ProfileDrawer

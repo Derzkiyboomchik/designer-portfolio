@@ -1,8 +1,12 @@
 import React from 'react';
 import { ArrowUp } from 'lucide-react';
-import { PROFILE_DATA } from '../data/portfolioData';
+import { type ProfileData } from '../data/portfolioData';
 
-export const Footer: React.FC = () => {
+interface FooterProps {
+  profile?: ProfileData;
+}
+
+export const Footer: React.FC<FooterProps> = ({ profile }) => {
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -11,7 +15,7 @@ export const Footer: React.FC = () => {
     <footer className="w-full mt-20 border-t border-[#E5E5E5] dark:border-[#222225] bg-[#FAFAFA] dark:bg-[#0E0E10] text-[#111] dark:text-white transition-colors py-8 px-4 sm:px-8">
       <div className="max-w-7xl mx-auto flex items-center justify-between">
         <h4 className="font-serif text-xl font-light tracking-tight text-[#111] dark:text-white">
-          {PROFILE_DATA.name}
+          {profile?.name || 'КРЫЛОВА АННА'}
         </h4>
 
         <button
