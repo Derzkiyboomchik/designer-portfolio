@@ -59,7 +59,7 @@ export const LightboxModal: React.FC<LightboxModalProps> = ({
     setTouchStartX(null);
   };
 
-  // Handle Keyboard Navigation (Arrow Keys switch images inside card)
+  // Handle Keyboard Navigation
   useEffect(() => {
     if (!project) return;
 
@@ -105,7 +105,7 @@ export const LightboxModal: React.FC<LightboxModalProps> = ({
       {project && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 lg:p-10 overflow-y-auto">
           
-          {/* Heavy Backdrop Blur Overlay (Frosted Glass Effect) */}
+          {/* Heavy Backdrop Blur Overlay */}
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -119,12 +119,12 @@ export const LightboxModal: React.FC<LightboxModalProps> = ({
           <button
             onClick={onClose}
             className="fixed top-5 right-5 z-50 p-3 rounded-full bg-white/20 dark:bg-black/40 backdrop-blur-md text-white border border-white/20 hover:bg-white/40 dark:hover:bg-white/20 transition-all shadow-lg group"
-            aria-label="Close project view"
+            aria-label="Закрыть просмотр"
           >
             <X className="w-5 h-5 group-hover:scale-110 transition-transform" />
           </button>
 
-          {/* Lightbox Modal Content Box (70-80% Viewport Width) */}
+          {/* Lightbox Modal Content Box */}
           <motion.div
             initial={{ opacity: 0, scale: 0.92, y: 15 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -136,7 +136,7 @@ export const LightboxModal: React.FC<LightboxModalProps> = ({
             {/* Scrollable Container for Image + Content */}
             <div className="overflow-y-auto max-h-[92vh] p-4 sm:p-8 space-y-6">
               
-              {/* Top Image Viewer Section with Touch Swipe & Desktop Arrows */}
+              {/* Top Image Viewer Section */}
               <div 
                 onTouchStart={handleTouchStart}
                 onTouchEnd={handleTouchEnd}
@@ -151,19 +151,14 @@ export const LightboxModal: React.FC<LightboxModalProps> = ({
                   onClick={() => setIsZoomed(!isZoomed)}
                 />
 
-                {/* Aspect Ratio Badge & Zoom Toggle */}
+                {/* Zoom Toggle (Top Left) */}
                 <div className="absolute top-4 left-4 flex items-center gap-2 z-10">
-                  {project.aspectRatioLabel && (
-                    <span className="px-2.5 py-1 text-[10px] font-mono tracking-widest uppercase bg-black/40 text-white backdrop-blur-md rounded-full border border-white/20">
-                      {project.aspectRatioLabel}
-                    </span>
-                  )}
                   <button
                     onClick={() => setIsZoomed(!isZoomed)}
-                    className="p-1.5 rounded-full bg-black/40 text-white backdrop-blur-md border border-white/20 hover:bg-black/60 transition-colors"
-                    title={isZoomed ? 'Zoom out' : 'Zoom in'}
+                    className="p-2 rounded-full bg-black/40 text-white backdrop-blur-md border border-white/20 hover:bg-black/60 transition-colors"
+                    title={isZoomed ? 'Уменьшить' : 'Увеличить'}
                   >
-                    {isZoomed ? <ZoomOut className="w-3.5 h-3.5" /> : <ZoomIn className="w-3.5 h-3.5" />}
+                    {isZoomed ? <ZoomOut className="w-4 h-4" /> : <ZoomIn className="w-4 h-4" />}
                   </button>
                 </div>
 
@@ -173,7 +168,7 @@ export const LightboxModal: React.FC<LightboxModalProps> = ({
                     <button
                       onClick={handlePrevImage}
                       className="absolute left-3 top-1/2 -translate-y-1/2 z-20 p-2.5 rounded-full bg-black/50 hover:bg-black/80 text-white backdrop-blur-md border border-white/20 transition-all opacity-80 hover:opacity-100 hidden sm:flex items-center justify-center shadow-lg"
-                      aria-label="Previous image"
+                      aria-label="Предыдущее фото"
                     >
                       <ChevronLeft className="w-5 h-5" />
                     </button>
@@ -181,14 +176,14 @@ export const LightboxModal: React.FC<LightboxModalProps> = ({
                     <button
                       onClick={handleNextImage}
                       className="absolute right-3 top-1/2 -translate-y-1/2 z-20 p-2.5 rounded-full bg-black/50 hover:bg-black/80 text-white backdrop-blur-md border border-white/20 transition-all opacity-80 hover:opacity-100 hidden sm:flex items-center justify-center shadow-lg"
-                      aria-label="Next image"
+                      aria-label="Следующее фото"
                     >
                       <ChevronRight className="w-5 h-5" />
                     </button>
                   </>
                 )}
 
-                {/* Image Dots Indicator (Shows active photo 1/N) */}
+                {/* Image Dots Indicator */}
                 {allImages.length > 1 && (
                   <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-2 bg-black/50 backdrop-blur-md p-1.5 rounded-full border border-white/20 z-10">
                     {allImages.map((_, idx) => (
@@ -198,7 +193,7 @@ export const LightboxModal: React.FC<LightboxModalProps> = ({
                         className={`w-2.5 h-2.5 rounded-full transition-all ${
                           activeImageIndex === idx ? 'bg-white scale-125' : 'bg-white/40 hover:bg-white/70'
                         }`}
-                        aria-label={`View photo ${idx + 1}`}
+                        aria-label={`Фото ${idx + 1}`}
                       />
                     ))}
                   </div>
@@ -212,7 +207,7 @@ export const LightboxModal: React.FC<LightboxModalProps> = ({
                 <div className="lg:col-span-2 space-y-4">
                   {project.category && (
                     <div className="flex flex-wrap items-center gap-3">
-                      <span className="text-xs font-mono tracking-widest uppercase text-blue-600 dark:text-blue-400">
+                      <span className="text-xs font-sans tracking-wider uppercase text-blue-600 dark:text-blue-400 font-medium">
                         {project.category}
                       </span>
                     </div>
@@ -240,18 +235,18 @@ export const LightboxModal: React.FC<LightboxModalProps> = ({
                   )}
                 </div>
 
-                {/* Metadata Sidebar (Right 1 Column) - Only rendered if fields exist */}
+                {/* Metadata Sidebar (Right 1 Column) */}
                 {hasSpecs && (
                   <div className="space-y-4 p-5 rounded-lg border border-[#E5E5E5] dark:border-[#222225] bg-[#F4F4F4] dark:bg-[#18181C]">
-                    <h3 className="font-mono text-xs tracking-widest uppercase text-[#777] dark:text-[#888] border-b border-[#E5E5E5] dark:border-[#28282E] pb-2">
-                      SPECIFICATIONS
+                    <h3 className="font-sans text-xs tracking-wider uppercase text-[#777] dark:text-[#888] border-b border-[#E5E5E5] dark:border-[#28282E] pb-2 font-medium">
+                      СПЕЦИФИКАЦИЯ
                     </h3>
 
                     <div className="space-y-3 text-xs">
                       {project.client && (
                         <div>
-                          <span className="font-mono text-[10px] text-[#777] dark:text-[#888] uppercase block">
-                            CLIENT / COMMISSIONER
+                          <span className="font-sans text-[10px] text-[#777] dark:text-[#888] uppercase block">
+                            ЗАКАЗЧИК / КЛИЕНТ
                           </span>
                           <span className="font-sans font-medium text-[#111] dark:text-white">
                             {project.client}
@@ -261,9 +256,9 @@ export const LightboxModal: React.FC<LightboxModalProps> = ({
 
                       {project.year && (
                         <div>
-                          <span className="font-mono text-[10px] text-[#777] dark:text-[#888] uppercase block flex items-center gap-1">
+                          <span className="font-sans text-[10px] text-[#777] dark:text-[#888] uppercase block flex items-center gap-1">
                             <Calendar className="w-3 h-3" />
-                            YEAR OF EXECUTION
+                            ГОД РЕАЛИЗАЦИИ
                           </span>
                           <span className="font-mono text-[#111] dark:text-white">
                             {project.year}
@@ -273,9 +268,9 @@ export const LightboxModal: React.FC<LightboxModalProps> = ({
 
                       {project.location && (
                         <div>
-                          <span className="font-mono text-[10px] text-[#777] dark:text-[#888] uppercase block flex items-center gap-1">
+                          <span className="font-sans text-[10px] text-[#777] dark:text-[#888] uppercase block flex items-center gap-1">
                             <MapPin className="w-3 h-3" />
-                            LOCATION
+                            ЛОКАЦИЯ
                           </span>
                           <span className="font-sans text-[#111] dark:text-white">
                             {project.location}
@@ -285,15 +280,15 @@ export const LightboxModal: React.FC<LightboxModalProps> = ({
 
                       {project.tools && project.tools.length > 0 && (
                         <div>
-                          <span className="font-mono text-[10px] text-[#777] dark:text-[#888] uppercase block flex items-center gap-1 mb-1.5">
+                          <span className="font-sans text-[10px] text-[#777] dark:text-[#888] uppercase block flex items-center gap-1 mb-1.5">
                             <Wrench className="w-3 h-3" />
-                            TOOLS & MEDIUMS
+                            ИНСТРУМЕНТЫ И ТЕХНОЛОГИИ
                           </span>
                           <div className="flex flex-wrap gap-1.5">
                             {project.tools.map((tool, idx) => (
                               <span
                                 key={idx}
-                                className="px-2 py-0.5 text-[10px] font-mono bg-white dark:bg-[#222226] border border-[#E0E0E0] dark:border-[#333] rounded text-[#444] dark:text-[#bbb]"
+                                className="px-2 py-0.5 text-[10px] font-sans bg-white dark:bg-[#222226] border border-[#E0E0E0] dark:border-[#333] rounded text-[#444] dark:text-[#bbb]"
                               >
                                 {tool}
                               </span>
@@ -304,12 +299,12 @@ export const LightboxModal: React.FC<LightboxModalProps> = ({
                     </div>
 
                     {/* Project Index Counter & Quick Nav */}
-                    <div className="pt-3 border-t border-[#E5E5E5] dark:border-[#28282E] flex items-center justify-between text-[11px] font-mono text-[#777] dark:text-[#888]">
-                      <span>WORK {currentIndex + 1} OF {allProjects.length}</span>
+                    <div className="pt-3 border-t border-[#E5E5E5] dark:border-[#28282E] flex items-center justify-between text-[11px] font-sans text-[#777] dark:text-[#888]">
+                      <span>ПРОЕКТ {currentIndex + 1} ИЗ {allProjects.length}</span>
                       <div className="flex items-center gap-2">
-                        <button onClick={handlePrevProject} className="hover:text-[#111] dark:hover:text-white">PREV</button>
+                        <button onClick={handlePrevProject} className="hover:text-[#111] dark:hover:text-white uppercase font-medium">НАЗАД</button>
                         <span>/</span>
-                        <button onClick={handleNextProject} className="hover:text-[#111] dark:hover:text-white">NEXT</button>
+                        <button onClick={handleNextProject} className="hover:text-[#111] dark:hover:text-white uppercase font-medium">ВПЕРЕД</button>
                       </div>
                     </div>
 

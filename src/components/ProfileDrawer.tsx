@@ -81,15 +81,15 @@ export const ProfileDrawer: React.FC<ProfileDrawerProps> = ({ isOpen, onClose, p
               <div className="p-6 border-b border-[#E5E5E5] dark:border-[#222225] flex items-center justify-between sticky top-0 bg-[#FAFAFA]/90 dark:bg-[#121214]/90 backdrop-blur-md z-10">
                 <div className="flex items-center gap-3">
                   <span className="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
-                  <span className="font-mono text-xs tracking-widest uppercase text-[#555] dark:text-[#aaa]">
-                    DESIGNER DOSSIER
+                  <span className="font-sans text-xs tracking-wider uppercase text-[#555] dark:text-[#aaa] font-medium">
+                    ДОСЬЕ ДИЗАЙНЕРА
                   </span>
                 </div>
                 
                 <button
                   onClick={onClose}
                   className="p-2 rounded-full hover:bg-[#EFEFEF] dark:hover:bg-[#222226] text-[#111] dark:text-white transition-colors"
-                  aria-label="Close profile drawer"
+                  aria-label="Закрыть профиль"
                 >
                   <X className="w-5 h-5" />
                 </button>
@@ -100,12 +100,16 @@ export const ProfileDrawer: React.FC<ProfileDrawerProps> = ({ isOpen, onClose, p
                 
                 {/* Avatar & Title Header */}
                 <div className="flex items-center gap-5">
-                  {profile.avatarUrl && (
+                  {profile.avatarUrl ? (
                     <img
                       src={profile.avatarUrl}
-                      alt={profile.name}
+                      alt={profile.name || 'Аватар'}
                       className="w-20 h-20 rounded-full object-cover border border-[#111]/20 dark:border-white/30 p-0.5"
                     />
+                  ) : (
+                    <div className="w-20 h-20 rounded-full bg-[#E5E5E5] dark:bg-[#222226] flex items-center justify-center font-serif text-2xl">
+                      {profile.name ? profile.name.charAt(0) : '✦'}
+                    </div>
                   )}
                   <div>
                     {profile.name && (
@@ -114,12 +118,12 @@ export const ProfileDrawer: React.FC<ProfileDrawerProps> = ({ isOpen, onClose, p
                       </h2>
                     )}
                     {profile.role && (
-                      <p className="font-mono text-xs text-[#666] dark:text-[#999] tracking-wider uppercase mt-0.5">
+                      <p className="font-sans text-xs text-[#666] dark:text-[#999] tracking-wide uppercase mt-0.5">
                         {profile.role}
                       </p>
                     )}
                     {profile.location && (
-                      <p className="font-mono text-[11px] text-[#888] tracking-widest uppercase mt-1">
+                      <p className="font-sans text-[11px] text-[#888] tracking-wider uppercase mt-1">
                         {profile.location}
                       </p>
                     )}
@@ -129,8 +133,8 @@ export const ProfileDrawer: React.FC<ProfileDrawerProps> = ({ isOpen, onClose, p
                 {/* Detailed Bio & Manifesto */}
                 {(profile.bio || profile.manifesto) && (
                   <div className="space-y-3">
-                    <h3 className="font-mono text-xs tracking-widest uppercase text-[#888] dark:text-[#777] border-b border-[#E5E5E5] dark:border-[#222225] pb-2">
-                      BIOGRAPHY & PRACTICE
+                    <h3 className="font-sans text-xs tracking-wider uppercase text-[#888] dark:text-[#777] border-b border-[#E5E5E5] dark:border-[#222225] pb-2 font-medium">
+                      БИОГРАФИЯ И ПРАКТИКА
                     </h3>
                     {profile.bio && (
                       <p className="font-sans text-sm font-light text-[#333] dark:text-[#ccc] leading-relaxed">
@@ -138,7 +142,7 @@ export const ProfileDrawer: React.FC<ProfileDrawerProps> = ({ isOpen, onClose, p
                       </p>
                     )}
                     {profile.manifesto && (
-                      <blockquote className="pl-3 border-l-2 border-[#111] dark:border-white text-xs font-serif italic text-[#555] dark:text-[#aaa] py-1">
+                      <blockquote className="pl-3 border-l-2 border-[#111] dark:border-white text-sm font-serif italic text-[#444] dark:text-[#bbb] py-1 leading-relaxed">
                         "{profile.manifesto}"
                       </blockquote>
                     )}
@@ -148,9 +152,9 @@ export const ProfileDrawer: React.FC<ProfileDrawerProps> = ({ isOpen, onClose, p
                 {/* Services List */}
                 {hasServices && (
                   <div className="space-y-3">
-                    <h3 className="font-mono text-xs tracking-widest uppercase text-[#888] dark:text-[#777] border-b border-[#E5E5E5] dark:border-[#222225] pb-2 flex items-center gap-2">
+                    <h3 className="font-sans text-xs tracking-wider uppercase text-[#888] dark:text-[#777] border-b border-[#E5E5E5] dark:border-[#222225] pb-2 flex items-center gap-2 font-medium">
                       <Layers className="w-3.5 h-3.5" />
-                      SERVICES & EXPERTISE
+                      УСЛУГИ И НАПРАВЛЕНИЯ
                     </h3>
                     <ul className="space-y-2">
                       {profile.services.map((service, idx) => (
@@ -166,14 +170,14 @@ export const ProfileDrawer: React.FC<ProfileDrawerProps> = ({ isOpen, onClose, p
                 {/* Selected Clients */}
                 {hasClients && (
                   <div className="space-y-3">
-                    <h3 className="font-mono text-xs tracking-widest uppercase text-[#888] dark:text-[#777] border-b border-[#E5E5E5] dark:border-[#222225] pb-2">
-                      SELECT CLIENTELE
+                    <h3 className="font-sans text-xs tracking-wider uppercase text-[#888] dark:text-[#777] border-b border-[#E5E5E5] dark:border-[#222225] pb-2 font-medium">
+                      КЛИЕНТЫ
                     </h3>
                     <div className="flex flex-wrap gap-2">
                       {profile.clients.map((client, idx) => (
                         <span
                           key={idx}
-                          className="px-2.5 py-1 text-[11px] font-mono border border-[#E0E0E0] dark:border-[#2A2A30] rounded text-[#444] dark:text-[#bbb]"
+                          className="px-2.5 py-1 text-[11px] font-sans border border-[#E0E0E0] dark:border-[#2A2A30] rounded text-[#444] dark:text-[#bbb]"
                         >
                           {client}
                         </span>
@@ -185,16 +189,16 @@ export const ProfileDrawer: React.FC<ProfileDrawerProps> = ({ isOpen, onClose, p
                 {/* Key Awards & Recognition */}
                 {hasAwards && (
                   <div className="space-y-3">
-                    <h3 className="font-mono text-xs tracking-widest uppercase text-[#888] dark:text-[#777] border-b border-[#E5E5E5] dark:border-[#222225] pb-2 flex items-center gap-2">
+                    <h3 className="font-sans text-xs tracking-wider uppercase text-[#888] dark:text-[#777] border-b border-[#E5E5E5] dark:border-[#222225] pb-2 flex items-center gap-2 font-medium">
                       <Award className="w-3.5 h-3.5" />
-                      RECOGNITION
+                      НАГРАДЫ
                     </h3>
                     <div className="space-y-2.5">
                       {profile.awards.map((award, idx) => (
                         <div key={idx} className="text-xs flex justify-between gap-4">
                           <div>
                             <p className="font-sans font-medium text-[#222] dark:text-[#eee]">{award.title}</p>
-                            <p className="font-mono text-[10px] text-[#777] dark:text-[#888]">{award.organization}</p>
+                            <p className="font-sans text-[11px] text-[#777] dark:text-[#888]">{award.organization}</p>
                           </div>
                           <span className="font-mono text-[11px] text-[#888] shrink-0">{award.year}</span>
                         </div>
@@ -206,20 +210,20 @@ export const ProfileDrawer: React.FC<ProfileDrawerProps> = ({ isOpen, onClose, p
                 {/* Contact & Social Links */}
                 {(profile.contact.email || hasSocials) && (
                   <div className="space-y-4 pt-4 border-t border-[#E5E5E5] dark:border-[#222225]">
-                    <h3 className="font-mono text-xs tracking-widest uppercase text-[#888] dark:text-[#777]">
-                      DIRECT INQUIRIES
+                    <h3 className="font-sans text-xs tracking-wider uppercase text-[#888] dark:text-[#777] font-medium">
+                      КОНТАКТЫ
                     </h3>
                     
                     {/* Email row */}
                     {profile.contact.email && (
                       <div className="flex items-center justify-between p-3 border border-[#E5E5E5] dark:border-[#28282E] rounded-lg bg-white/50 dark:bg-[#17171A]">
-                        <span className="font-mono text-xs text-[#222] dark:text-[#eee] truncate mr-2">
+                        <span className="font-sans text-xs text-[#222] dark:text-[#eee] truncate mr-2">
                           {profile.contact.email}
                         </span>
                         <button
                           onClick={handleCopyEmail}
                           className="p-1.5 rounded hover:bg-[#EFEFEF] dark:hover:bg-[#25252A] text-[#666] dark:text-[#aaa] transition-colors shrink-0"
-                          title="Copy email to clipboard"
+                          title="Скопировать email"
                         >
                           {copied ? <Check className="w-4 h-4 text-emerald-500" /> : <Copy className="w-4 h-4" />}
                         </button>
@@ -228,7 +232,7 @@ export const ProfileDrawer: React.FC<ProfileDrawerProps> = ({ isOpen, onClose, p
 
                     {/* Social Links List */}
                     {hasSocials && (
-                      <div className="grid grid-cols-2 gap-2 text-xs font-mono">
+                      <div className="grid grid-cols-2 gap-2 text-xs font-sans">
                         {socialLinks.map((item) => (
                           <a
                             key={item.key}
@@ -250,8 +254,8 @@ export const ProfileDrawer: React.FC<ProfileDrawerProps> = ({ isOpen, onClose, p
               </div>
 
               {/* Drawer Footer */}
-              <div className="p-6 border-t border-[#E5E5E5] dark:border-[#222225] bg-[#FAFAFA]/90 dark:bg-[#121214]/90 text-[10px] font-mono text-[#888] dark:text-[#777] flex items-center justify-between">
-                <span>© {new Date().getFullYear()} {profile.name ? `STUDIO ${profile.name.split(' ')[0]}` : 'PORTFOLIO'}</span>
+              <div className="p-6 border-t border-[#E5E5E5] dark:border-[#222225] bg-[#FAFAFA]/90 dark:bg-[#121214]/90 text-[10px] font-sans text-[#888] dark:text-[#777] flex items-center justify-between">
+                <span>© {new Date().getFullYear()} {profile.name ? `СТУДИЯ ${profile.name.split(' ')[0]}` : 'ПОРТФОЛИО'}</span>
                 {profile.location && <span>{profile.location.toUpperCase()}</span>}
               </div>
 

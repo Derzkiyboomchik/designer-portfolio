@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import type { Project } from '../data/portfolioData';
-import { Maximize2 } from 'lucide-react';
 
 interface ProjectCardProps {
   project: Project;
@@ -69,48 +68,51 @@ export const ProjectCard: React.FC<ProjectCardProps> = ({ project, onSelect }) =
             
             {/* Top Row Badges */}
             <div className="flex items-center justify-between transform -translate-y-2 group-hover:translate-y-0 transition-transform duration-300">
-              <span className="text-[10px] font-mono tracking-widest px-2.5 py-1 bg-white/20 dark:bg-black/40 backdrop-blur-md rounded-full border border-white/20 text-white uppercase">
-                {project.category}
-              </span>
-              <span className="text-[10px] font-mono tracking-widest text-white/80">
-                {project.year}
-              </span>
+              {project.category && (
+                <span className="text-[10px] font-sans tracking-wider px-2.5 py-1 bg-white/20 dark:bg-black/40 backdrop-blur-md rounded-full border border-white/20 text-white uppercase">
+                  {project.category}
+                </span>
+              )}
+              {project.year && (
+                <span className="text-[10px] font-mono tracking-widest text-white/80">
+                  {project.year}
+                </span>
+              )}
             </div>
 
             {/* Bottom Project Info */}
             <div className="transform translate-y-2 group-hover:translate-y-0 transition-transform duration-300 space-y-1">
-              <div className="flex items-center justify-between">
-                <h3 className="font-serif text-2xl font-light tracking-tight text-white">
-                  {project.title}
-                </h3>
-                <span className="p-1.5 rounded-full bg-white/20 backdrop-blur-md text-white border border-white/20">
-                  <Maximize2 className="w-3.5 h-3.5" />
-                </span>
-              </div>
+              <h3 className="font-serif text-2xl font-light tracking-tight text-white">
+                {project.title}
+              </h3>
 
-              <p className="font-sans text-xs text-white/80 line-clamp-1 font-light">
-                {project.subtitle}
-              </p>
+              {project.subtitle && (
+                <p className="font-sans text-xs text-white/80 line-clamp-1 font-light">
+                  {project.subtitle}
+                </p>
+              )}
 
-              <div className="pt-2 flex items-center justify-between text-[10px] font-mono text-white/60 border-t border-white/15">
-                <span>{project.client}</span>
-                <span className="uppercase">{project.aspectRatioLabel}</span>
-              </div>
+              {project.client && (
+                <div className="pt-2 flex items-center justify-between text-[10px] font-sans text-white/60 border-t border-white/15">
+                  <span>{project.client}</span>
+                </div>
+              )}
             </div>
 
           </div>
 
-          {/* Subtly persistent bottom info line for mobile & non-hover state */}
         </div>
 
-        {/* Minimal Label below card for Swiss clarity */}
+        {/* Minimal Label below card */}
         <div className="mt-2.5 flex items-center justify-between text-xs px-0.5">
           <span className="font-serif text-base font-normal tracking-tight text-[#111] dark:text-[#eee] group-hover:opacity-75 transition-opacity">
             {project.title}
           </span>
-          <span className="font-mono text-[10px] text-[#777] dark:text-[#888] tracking-widest uppercase">
-            {project.category} • {project.year}
-          </span>
+          {(project.category || project.year) && (
+            <span className="font-sans text-[10px] text-[#777] dark:text-[#888] tracking-wider uppercase">
+              {project.category}{project.category && project.year ? ' • ' : ''}{project.year}
+            </span>
+          )}
         </div>
 
       </div>

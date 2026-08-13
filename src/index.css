@@ -4,16 +4,14 @@
 
 @layer base {
   :root {
-    --font-serif: 'Cormorant Garamond', serif;
-    --font-sans: 'Inter', sans-serif;
-    --font-mono: 'Space Grotesk', monospace;
+    --font-serif: 'Cormorant Garamond', Georgia, serif;
+    --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
   }
 }
 
 @theme {
-  --font-serif: 'Cormorant Garamond', serif;
-  --font-sans: 'Inter', sans-serif;
-  --font-mono: 'Space Grotesk', monospace;
+  --font-serif: 'Cormorant Garamond', Georgia, serif;
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
 
   --color-swiss-dark: #121214;
   --color-swiss-light: #FAFAFA;
@@ -50,7 +48,7 @@
 /* Smooth Scrolling */
 html {
   scroll-behavior: smooth;
-  font-family: 'Inter', sans-serif;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
 }
 
 /* Minimalist backdrop blur utilities */

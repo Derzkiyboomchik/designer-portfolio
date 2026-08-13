@@ -9,7 +9,6 @@ const PROJECTS_QUERY = `*[_type == "project"] | order(_createdAt desc) {
   category,
   year,
   aspectRatio,
-  aspectRatioLabel,
   mainImage,
   secondaryImages,
   description,
@@ -46,21 +45,20 @@ export async function fetchPortfolioProjects(): Promise<Project[]> {
     const sanityData = await sanityClient.fetch(PROJECTS_QUERY);
     
     if (!sanityData || sanityData.length === 0) {
-      console.log('[Sanity] Projects query returned 0 documents. Using fallback.');
-      return PORTFOLIO_PROJECTS;
+      console.log('[Sanity] Projects query returned 0 documents.');
+      return [];
     }
 
     return sanityData.map((item: any) => ({
       id: item._id || item.id,
       title: item.title || '',
       subtitle: item.subtitle || '',
-      category: item.category || 'Editorial',
-      year: item.year || new Date().getFullYear().toString(),
+      category: item.category || '',
+      year: item.year || '',
       aspectRatio: item.aspectRatio || '4/3',
-      aspectRatioLabel: item.aspectRatioLabel || '4:3 Landscape',
-      imageUrl: item.mainImage ? urlFor(item.mainImage).url() : './projects/project-1.jpg',
+      imageUrl: item.mainImage ? urlFor(item.mainImage).url() : '',
       secondaryImages: Array.isArray(item.secondaryImages)
-        ? item.secondaryImages.map((img: any) => urlFor(img).url())
+        ? item.secondaryImages.map((img: any) => urlFor(img).url()).filter(Boolean)
         : [],
       description: item.description || '',
       client: item.client || '',
@@ -69,8 +67,8 @@ export async function fetchPortfolioProjects(): Promise<Project[]> {
       featured: Boolean(item.featured),
     }));
   } catch (error) {
-    console.error('[Sanity] Network error fetching projects. Using PORTFOLIO_PROJECTS fallback:', error);
-    return PORTFOLIO_PROJECTS;
+    console.error('[Sanity] Error fetching projects from Sanity API:', error);
+    return [];
   }
 }
 
@@ -83,16 +81,14 @@ export async function fetchProfileData(): Promise<ProfileData> {
     const data = await sanityClient.fetch(PROFILE_QUERY);
     if (!data) return PROFILE_DATA;
 
-    // Use Sanity Studio data if available, fallback to PROFILE_DATA on network error
     return {
-      name: data.name || PROFILE_DATA.name,
-      role: data.role || PROFILE_DATA.role,
-      location: data.location || PROFILE_DATA.location,
-      avatarUrl: data.avatar ? urlFor(data.avatar).url() : PROFILE_DATA.avatarUrl,
-      bio: data.bio || PROFILE_DATA.bio,
-      manifesto: data.manifesto || PROFILE_DATA.manifesto,
+      name: data.name || '',
+      role: data.role || '',
+      location: data.location || '',
+      avatarUrl: data.avatar ? urlFor(data.avatar).url() : '',
+      bio: data.bio || '',
+      manifesto: data.manifesto || '',
       stats: [],
-      // Optional fields hide if empty in Sanity Studio:
       services: Array.isArray(data.services) ? data.services : [],
       clients: Array.isArray(data.clients) ? data.clients : [],
       awards: Array.isArray(data.awards) 
@@ -103,7 +99,7 @@ export async function fetchProfileData(): Promise<ProfileData> {
           })) 
         : [],
       contact: {
-        email: data.email || PROFILE_DATA.contact.email,
+        email: data.email || '',
         phone: data.phone || '',
         studio: data.studioAddress || '',
         instagram: data.instagram || '',

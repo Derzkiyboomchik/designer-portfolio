@@ -13,10 +13,10 @@ export const MasonryGrid: React.FC<MasonryGridProps> = ({ projects, onSelectProj
     return (
       <div className="py-24 text-center space-y-4">
         <p className="font-serif text-2xl font-light text-[#777] dark:text-[#888]">
-          No works found matching criteria.
+          Проекты не найдены.
         </p>
-        <p className="font-mono text-xs text-[#999] uppercase tracking-widest">
-          Try resetting filters or adjusting search queries.
+        <p className="font-sans text-xs text-[#999] uppercase tracking-wider">
+          Добавьте проекты через Sanity Studio.
         </p>
       </div>
     );

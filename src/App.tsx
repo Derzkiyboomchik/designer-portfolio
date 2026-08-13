@@ -83,8 +83,8 @@ export function App() {
         {isLoading ? (
           <div className="py-24 text-center space-y-3">
             <div className="w-6 h-6 border-2 border-current border-t-transparent rounded-full animate-spin mx-auto opacity-40"></div>
-            <p className="font-mono text-xs text-[#888] uppercase tracking-widest">
-              CONNECTING TO SANITY...
+            <p className="font-sans text-xs text-[#888] uppercase tracking-wider">
+              ЗАГРУЗКА ПОРТФОЛИО...
             </p>
           </div>
         ) : projects.length > 0 ? (

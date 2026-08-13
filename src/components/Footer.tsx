@@ -20,9 +20,9 @@ export const Footer: React.FC<FooterProps> = ({ profile }) => {
 
         <button
           onClick={scrollToTop}
-          className="flex items-center gap-1.5 font-mono text-xs text-[#666] dark:text-[#999] hover:text-[#111] dark:hover:text-white transition-colors group tracking-widest uppercase"
+          className="flex items-center gap-1.5 font-sans text-xs text-[#666] dark:text-[#999] hover:text-[#111] dark:hover:text-white transition-colors group tracking-wider uppercase font-medium"
         >
-          BACK TO TOP
+          НАВЕРХ
           <ArrowUp className="w-3.5 h-3.5 transition-transform group-hover:-translate-y-0.5" />
         </button>
       </div>
