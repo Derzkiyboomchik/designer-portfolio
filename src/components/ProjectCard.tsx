@@ -9,22 +9,17 @@ interface ProjectCardProps {
 export const ProjectCard: React.FC<ProjectCardProps> = ({ project, onSelect }) => {
   const [isLoaded, setIsLoaded] = useState(false);
 
-  // Map aspect ratio string to CSS aspect ratio property
-  const getAspectRatioStyle = (ratioStr: string) => {
-    switch (ratioStr) {
-      case '3/4': return '3 / 4';
-      case '16/9': return '16 / 9';
-      case '1/1': return '1 / 1';
-      case '2/5': return '2 / 5';
-      case '21/9': return '21 / 9';
-      case '9/16': return '9 / 16';
-      case '4/3': return '4 / 3';
-      case '2/3': return '2 / 3';
-      case '1/3': return '1 / 3';
-      case '3/2': return '3 / 2';
-      case '5/3': return '5 / 3';
-      default: return '4 / 3';
+  // Hybrid parser for aspect ratios: supports 16/9, 16:9, 4/3, 4:3, 1/1, custom ratios
+  const getAspectRatioStyle = (ratioStr?: string) => {
+    if (!ratioStr) return '4 / 3';
+    const normalized = ratioStr.replace(':', '/').trim();
+    if (normalized.includes('/')) {
+      const [w, h] = normalized.split('/');
+      if (w && h && !isNaN(Number(w)) && !isNaN(Number(h))) {
+        return `${w.trim()} / ${h.trim()}`;
+      }
     }
+    return normalized || '4 / 3';
   };
 
   return (

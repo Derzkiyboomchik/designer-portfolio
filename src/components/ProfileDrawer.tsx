@@ -82,7 +82,7 @@ export const ProfileDrawer: React.FC<ProfileDrawerProps> = ({ isOpen, onClose, p
                 <div className="flex items-center gap-3">
                   <span className="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
                   <span className="font-sans text-xs tracking-wider uppercase text-[#555] dark:text-[#aaa] font-medium">
-                    ДОСЬЕ ДИЗАЙНЕРА
+                    ПРОФИЛЬ
                   </span>
                 </div>
                 

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import type { Project } from '../data/portfolioData';
-import { X, ChevronLeft, ChevronRight, MapPin, Calendar, Wrench, ZoomIn, ZoomOut } from 'lucide-react';
+import { X, ChevronLeft, ChevronRight, MapPin, Calendar, Wrench } from 'lucide-react';
 
 interface LightboxModalProps {
   project: Project | null;
@@ -17,13 +17,11 @@ export const LightboxModal: React.FC<LightboxModalProps> = ({
   onSelectProject
 }) => {
   const [activeImageIndex, setActiveImageIndex] = useState(0);
-  const [isZoomed, setIsZoomed] = useState(false);
   const [touchStartX, setTouchStartX] = useState<number | null>(null);
 
   // Reset active image index when project changes
   useEffect(() => {
     setActiveImageIndex(0);
-    setIsZoomed(false);
   }, [project]);
 
   const allImages = project ? [project.imageUrl, ...(project.secondaryImages || [])] : [];
@@ -145,22 +143,8 @@ export const LightboxModal: React.FC<LightboxModalProps> = ({
                 <img
                   src={currentImage}
                   alt={project.title}
-                  className={`object-contain transition-all duration-500 max-h-[62vh] w-auto ${
-                    isZoomed ? 'scale-125 cursor-zoom-out' : 'cursor-zoom-in'
-                  }`}
-                  onClick={() => setIsZoomed(!isZoomed)}
+                  className="object-contain max-h-[62vh] w-auto transition-all duration-300"
                 />
-
-                {/* Zoom Toggle (Top Left) */}
-                <div className="absolute top-4 left-4 flex items-center gap-2 z-10">
-                  <button
-                    onClick={() => setIsZoomed(!isZoomed)}
-                    className="p-2 rounded-full bg-black/40 text-white backdrop-blur-md border border-white/20 hover:bg-black/60 transition-colors"
-                    title={isZoomed ? 'Уменьшить' : 'Увеличить'}
-                  >
-                    {isZoomed ? <ZoomOut className="w-4 h-4" /> : <ZoomIn className="w-4 h-4" />}
-                  </button>
-                </div>
 
                 {/* Desktop Side Arrows for Switching Images Inside Card */}
                 {allImages.length > 1 && (
