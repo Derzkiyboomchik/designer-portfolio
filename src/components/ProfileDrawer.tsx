@@ -142,7 +142,7 @@ export const ProfileDrawer: React.FC<ProfileDrawerProps> = ({ isOpen, onClose, p
                       </p>
                     )}
                     {profile.manifesto && (
-                      <blockquote className="pl-3 border-l-2 border-[#111] dark:border-white text-sm font-serif italic text-[#444] dark:text-[#bbb] py-1 leading-relaxed">
+                      <blockquote className="pl-3 border-l-2 border-[#111] dark:border-white text-base font-serif italic text-[#444] dark:text-[#bbb] py-1 leading-relaxed">
                         "{profile.manifesto}"
                       </blockquote>
                     )}
